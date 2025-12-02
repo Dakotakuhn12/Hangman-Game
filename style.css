@@ -1,0 +1,151 @@
+:root {
+    --primary: #4361ee;
+    --success: #4cc9f0;
+    --danger: #f72585;
+    --dark: #212529;
+    --light: #f8f9fa;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background: #f5f5f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.game-container {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    width: 100%;
+    max-width: 800px;
+    text-align: center;
+}
+
+h1 {
+    color: var(--primary);
+    margin-bottom: 20px;
+}
+
+.game-status {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+
+.hangman-container {
+    margin: 20px auto;
+}
+
+.word-display {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 30px 0;
+    font-size: 2rem;
+    font-weight: bold;
+    min-height: 50px;
+}
+
+.word-letter {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 3px solid var(--dark);
+}
+
+.keyboard {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin: 20px 0;
+}
+
+.keyboard-letter {
+    width: 40px;
+    height: 40px;
+    background: var(--light);
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.keyboard-letter:hover:not(.used) {
+    background: #e0e0e0;
+}
+
+.kayboard-letter.used {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.keyboard-letter.correct {
+    background: var(--success);
+    color: white;
+    border-color: var(--success);
+}
+
+.keyboard-letter.wrong {
+    background: var(--danger);
+    color: white;
+    border-color: var(--danger);
+}
+
+.game-message {
+    min-height: 30px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin: 20px 0;
+    color: var(--primary);
+}
+
+.reset-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.reset-btn:hover {
+    background: #3a56d4;
+    transform: translateY(-2px);
+}
+
+@media (max-width: 600px) {
+    .game-container {
+        padding: 20px;
+    }
+
+    .keyboard-letter {
+        width: 30px;
+        height: 30px;
+        font-size: 1.5rem;
+    }
+}

@@ -14,5 +14,68 @@
 
         <div class="game-status">
             <p id="remaining-guesses"></p>
+            <p id="remaining-guesses">Remaining Guesses: 6</p>
+            <p id="category">Category: Animals</p>
+        </div>
+
+        <div class="hangman-container">
+            <svg id="hangman-svg" width="200" height="200" viewBox="0 0 200 200">
+                <!-- Gallows -->
+                 <line x1="20" y1="180" x2="100" y2="180" stroke="#333"
+                 stroke-width="4"/>
+                 <line x1="60" y1="180" x2="60" y2="20" stroke="#333"
+                 stroke-width="4"/>
+                 <line x1="60" y1="20" x2="140" y2="20" stroke="#333"
+                 stroke-width="4"/>
+                 <line x1="140" y1="20" x2="140" y2="40" stroke="#333"
+                 stroke-width="4"/>
+
+                 <!-- Hangman parts (hidden by default) -->
+                 <!-- Head -->
+                 <circle id="head" cx="140" cy="60" r="20" stroke="#333"
+                 stroke-width="3" fill="transparent" style="display: none;
+                 "/>
+                 <!-- Body -->
+                 <line id="body" x1="140" y1="80" x2="140" y2="130" 
+                 stroke="#333" stroke-width="3" style="display: none"/>
+                 <!-- Arms -->
+                 <line id="left-arm" x1="140" y1="100" x2="110" y2="90"
+                 stroke="#333" stroke-width="3" style="display: none;"/>
+                 <line id="right-arm" x1="140" y1="100" x2="170" y2="90"
+                 stroke="#333" stroke-width="3" style="display: none;"/>
+                 <!-- Legs -->
+                 <line id="left-leg" x1="140" y1="130" x2="120" y2="160"
+                 stroke="#333" stroke-width="3" style="display: none;"/>
+                 <!-- Face (shown when lost) -->
+                  <g id="face" style="display: none;">
+                 <line x1="130" y1="55" x2="135" y2="60" stroke="#333"
+                 stroke-width="2"/>
+                 <line x1="135" y1="55" x2="130" y2="60" stroke="#333"
+                 stroke-width="2"/>
+                 <line x1="145" y1="55" x2="150" y2="60" stroke="#333"
+                 stroke-width="2"/>
+                 <line x1="150" y1="55" x2="145" y2="60" stroke="#333"
+                 stroke-width="2"/>
+                 <path d="M130 70 Q140 80 150 70" stroke="#333"
+                 stroke-width="2" fill="transparent"/>
+                 </g>
+            </svg>
+        </div>
+
+        <div class="word-display" id="word-display">
+            <!-- Word letters will appear here -->
+        </div>
+
+        <div class="keyboard" id="keyboard">
+            <!-- Keyboard letters will be added by JavaScript -->
+        </div>
+
+        <div class="game-message" id="game-message"></div>
+
+        <button id="reset-btn" class="reset-btn">
+            <i class="fas fa-redo"></i> New Game
+        </button>
+        </div>
+        <script src="script.js"></script>
 </body>
 </html>
