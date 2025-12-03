@@ -1,611 +1,3 @@
-const ListOfAnimals = [
-  "Aardvark",
-  "Aardwolf: The Shy Night-Time Forager of Africa",
-  "Addax",
-  "Adelie Penguin",
-  "African Buffalo",
-  "African Elephant",
-  "African Forest Elephant",
-  "African Lions",
-  "African Penguin",
-  "African Spurred Tortoise",
-  "African Wild Dog",
-  "Africanized Bees",
-  "Allen’s Swamp Monkeys",
-  "Alligator",
-  "Alligator Gar – A Keystone Species in America’s Freshwaters",
-  "Allis Shad",
-  "Alpine Ibex",
-  "Amazon River Dolphin",
-  "Amazonian Manatee",
-  "American Badger",
-  "American Kestrel",
-  "American Oystercatcher Bird",
-  "Anaconda Snake",
-  "Animals Beginning with X",
-  "Ants",
-  "Aquatic Warbler",
-  "Arctic Wolf",
-  "Armadillo",
-  "Asian Elephant",
-  "Asian Lion",
-  "Atlantic Puffin",
-  "Atlantic Spotted Dolphins",
-  "Atlantic Wolffish",
-  "Atlas Beetle",
-  "Audubon’s Shearwater Bird",
-  "Australasian Grebe",
-  "Australian Dingo",
-  "Australian Pelican",
-  "Australian Swiftlet",
-  "Axolotl",
-  "Bactrian Camels",
-  "Badger",
-  "Bald Eagle",
-  "Baltimore Oriole",
-  "Banana Spiders – An Exploration of The Golden Silk Orb-Weaver",
-  "Bandicoots – Small Marsupials With Big Snouts",
-  "Bean Goose",
-  "Bees",
-  "Beetle",
-  "Beluga Sturgeon – The Jewel of the Caspian Sea",
-  "Bengal Tigers",
-  "Betta Fish (Siamese Fighting Fish)",
-  "Big Eyed Squirrel Fish",
-  "Bigfin Reef Squid",
-  "Bigfin Squid",
-  "Bison",
-  "Black Caimans",
-  "Black Footed Ferret",
-  "Black House Spider",
-  "Black Mamba Snakes",
-  "Black Necked Stilt",
-  "Black Rhinoceros",
-  "Black Widow Spider",
-  "Blackbird (Common) – Europe’s Shadowy Songsters",
-  "Blacktip Reef Shark",
-  "Blacktip Shark",
-  "Blister Beetle",
-  "Blue and Yellow Macaw",
-  "Blue Ringed Octopus",
-  "Blue Whale",
-  "Blue-footed Booby Bird",
-  "Boa Constrictor Snake",
-  "Bottlenose Dolphins",
-  "Bowhead Whale",
-  "Box Jellyfish – Deadly Yet Delicate",
-  "Brandling Worms – (Eisenia fetida)",
-  "Brazilian Wandering Spider",
-  "British Mice",
-  "British Moles",
-  "British Water Vole",
-  "British Wild Cats",
-  "Broad-Snouted Caimans",
-  "Brown Recluse Spider",
-  "Brown Trout",
-  "Bull Shark",
-  "Bumble Bees",
-  "Burrowing Owl",
-  "Burying Beetle",
-  "Butterflies",
-  "Cactus Wren Facts",
-  "California Condor – Back From The Brink",
-  "Camel Cricket",
-  "Camel Spider",
-  "Camels",
-  "Campbell’s Dwarf Hamster",
-  "Canada Goose",
-  "Canadian Marble Fox",
-  "Cape Gannet Bird",
-  "Capercaillie",
-  "Capuchin Monkeys",
-  "Capybara",
-  "Caracal",
-  "Cardinal Birds",
-  "Caribbean Reef Shark",
-  "Caribou (Reindeer)",
-  "Cassowary Bird Facts",
-  "Cats",
-  "Centipede",
-  "Chameleon – Masters Of Adaption",
-  "Cheetah",
-  "Chickaree",
-  "Chickens",
-  "Chimpanzee",
-  "Chinchilla",
-  "Chinese Hamsters",
-  "Chinstrap Penguin",
-  "Chipmunk",
-  "Christmas Beetle",
-  "Cicada Killer Wasps",
-  "Click Beetle",
-  "Coati – The Lesser-Known Ring-Tailed Wanderers",
-  "Colossal Squid",
-  "Commerson Dolphin",
-  "Common Buzzard",
-  "Common Dolphin",
-  "Common Frog",
-  "Common Hippopotamus",
-  "Common Kingfisher",
-  "Common Lizard",
-  "Common Newt",
-  "Common Octopus",
-  "Common Palm Civet",
-  "Common Seal",
-  "Common Toad",
-  "Common Wasps",
-  "Cone Snail",
-  "Cooper’s Hawk",
-  "Copepods",
-  "Copperhead Snakes",
-  "Corncrake",
-  "Cottonmouth Snakes",
-  "Cows",
-  "Coyote",
-  "Crab Plover",
-  "Crabs",
-  "Crocodile",
-  "Crows – Life and Lore of these Intelligent Birds",
-  "Cuban Solenodon",
-  "Cuviers Dwarf Caimans",
-  "Darkling Beetle",
-  "De Brazza’s Monkeys",
-  "Deer",
-  "Degu",
-  "Dik Dik",
-  "Dog",
-  "Dolphins",
-  "Domestic Pig",
-  "Dragonfly",
-  "Dromedary Camels",
-  "Drywood Termites",
-  "Duck-billed Platypus",
-  "Ducks",
-  "Donkey",
-  "Dung Beetle",
-  "Earthworms",
-  "Eastern Lowland Gorillas",
-  "Eastern Wolf",
-  "Echidna",
-  "Elephant Seal",
-  "Elephant Shrew",
-  "Elephants",
-  "Elk",
-  "Emperor Penguin",
-  "Emu",
-  "Erect-Crested Penguin",
-  "Ethiopian Wolf",
-  "Eurasian Beaver",
-  "Eurasian Eagle Owl",
-  "Eurasian Water Shrew",
-  "Eurasian Wolf",
-  "Eurasian Wryneck",
-  "European Hare",
-  "European Otter",
-  "False Black Widow Spider",
-  "Fennec Fox",
-  "Ferret",
-  "Field Vole",
-  "Fiji Blue Devil Damsel Fish",
-  "Fiordland Crested Penguin",
-  "Fisher Cat – Master Hunters In Canada’s Forests",
-  "Fishing Cat –  The Asian Wetlands Feline",
-  "Flatworms",
-  "Fungus Beetle",
-  "Funnel Web Spider",
-  "Gaboon Viper – The Snake with the Longest Fangs",
-  "Galapagos Barn Owls",
-  "Galapagos Black Tipped Shark",
-  "Galapagos Brown Noddy Tern",
-  "Galapagos Brown Pelican Birds",
-  "Galapagos Brydes Whale",
-  "Galapagos Dark Billed Cuckoo",
-  "Galapagos Dove",
-  "Galapagos Eels",
-  "Galapagos Fin Whales",
-  "Galapagos Finches",
-  "Galapagos Flamingo",
-  "Galapagos Flightless Cormorant Sea Bird",
-  "Galapagos Flycatcher Bird",
-  "Galapagos Fur Seals",
-  "Galapagos Gecko",
-  "Galapagos Giant Tortoise",
-  "Galapagos Great Blue Heron Bird",
-  "Galapagos Great Frigate Bird",
-  "Galapagos Green Sea Turtle",
-  "Galapagos Hammerhead Shark",
-  "Galapagos Hawk",
-  "Galapagos Hoary Bat",
-  "Galapagos Humpback Whale",
-  "Galapagos Killer Whale – The Orca",
-  "Galapagos Land Iguana",
-  "Galapagos Lava Gull Bird",
-  "Galapagos Lava Heron Bird",
-  "Galapagos Lava Lizard",
-  "Galapagos Marine Iguana",
-  "Galapagos Masked Booby Bird",
-  "Galapagos Minke Whale",
-  "Galapagos Mockingbird",
-  "Galapagos Nazca Booby Bird",
-  "Galapagos Penguin",
-  "Galapagos Rail Bird",
-  "Galapagos Rays",
-  "Galapagos Red Bat",
-  "Galapagos Red Billed Tropic Bird",
-  "Galapagos Red Footed Booby Bird",
-  "Galapagos Rice Rat",
-  "Galapagos Sea Lions",
-  "Galapagos Short Eared Owl",
-  "Galapagos Short Finned Pilot Whale",
-  "Galapagos Silky Shark",
-  "Galapagos Smooth Billed Ani Bird",
-  "Galapagos Snakes",
-  "Galapagos Sperm Whale",
-  "Galapagos Storm Petrel Bird",
-  "Galapagos Swallow Tailed Gull",
-  "Galapagos Waved Albatross",
-  "Galapagos Whale Shark",
-  "Galapagos Whimbrel Birds",
-  "Galapagos White Cheeked Pintail Duck",
-  "Galapagos White Tipped Reef Shark",
-  "Galapagos Willet Bird",
-  "Galapagos Yellow Warbler Bird",
-  "Galapagos Yellow-Crowned Night Heron",
-  "Garter Snakes – From Gardens to Wetlands to Household Pets",
-  "Gemsbok",
-  "Gentoo Penguin",
-  "Gerenuk",
-  "Gharial",
-  "Giant Anteater",
-  "Giant Grouper",
-  "Giant Pacific Octopus",
-  "Giant Panda Bear",
-  "Giant Sable Antelope",
-  "Giant Squid",
-  "Giraffe",
-  "Goats",
-  "Gold, Silver and Blue Monkeys",
-  "Golden Eagle",
-  "Golden Pheasant",
-  "Gorillas",
-  "Grass Spiders",
-  "Grasshopper",
-  "Gray Fox",
-  "Great Barracuda",
-  "Great Bittern",
-  "Great Crested Newt",
-  "Great Green Macaw",
-  "Great Grey Owl",
-  "Great Horned Owl – A Symbol of Wisdom and Strength",
-  "Great White African Pelican Birds",
-  "Great White Shark",
-  "Greater Flamingo",
-  "Greater Horseshoe Bat",
-  "Greater Mouse-Eared Bat",
-  "Greater Spot-Nosed Monkeys",
-  "Green Caterpillars",
-  "Green Cheeked Conure",
-  "Green Crabs",
-  "Green Scarab Beetle",
-  "Green Tree Python",
-  "Grevy’s Zebra",
-  "Grey Jungle Fowl Bird",
-  "Grey Loerie bird",
-  "Grey Partridge",
-  "Grey Seal",
-  "Grey Wolf",
-  "Grivet Monkeys",
-  "Grizzly Bear",
-  "Ground Beetle",
-  "Ground Centipede",
-  "Groundhog",
-  "Guinea Pigs",
-  "Hamerkop Bird",
-  "Hamsters",
-  "Harbour Porpoise",
-  "Harp Seal",
-  "Harpy Eagle",
-  "Hazel Dormouse",
-  "Hectors Dolphin",
-  "Hedgehog",
-  "Hercules Beetle – Titans of the Insect Kingdom",
-  "Hermit Crabs",
-  "Heron",
-  "Hippopotamus",
-  "Hobo Spider",
-  "Hognose Snakes – Theatrical Flair And A Distinctive Snout",
-  "Honey Bee",
-  "Honey Bee Characteristics",
-  "Hoopoe Birds",
-  "Hornets",
-  "Horny Toads – The Desert’s Miniature Lizards",
-  "Horses",
-  "Horseshoe Crabs",
-  "House Centipede",
-  "Howler Monkeys",
-  "Humboldt Penguin",
-  "Huntsman Spider",
-  "Hydrozoan Jellyfish",
-  "Ibisbill Bird",
-  "Iguana – Understanding The Species, Their Features And Habitats",
-  "Impala",
-  "Indian Cuckoo Bird",
-  "Indian Rhinoceros",
-  "Indian Skimmer Bird",
-  "Italian Wolf",
-  "Jackal",
-  "Jaguar",
-  "Jambu Fruit Dove",
-  "Japanese Spider Crabs",
-  "Javan Rhinoceros",
-  "Jellyfish",
-  "Katipo Spider",
-  "Kea Parrot",
-  "Kestrel Bird",
-  "Killdeer",
-  "King Cobra Snakes",
-  "King Penguin",
-  "King Salmon",
-  "Kinkajou",
-  "Kittens",
-  "Koala – Fascinating Facts &amp; Info",
-  "Komodo Dragon",
-  "Krill",
-  "Ladybird / Ladybug",
-  "Laughing Kookaburra",
-  "Leafy Sea Dragon – Masters Of Camouflage And Mimicry",
-  "Lemmings",
-  "Lemon Shark – Masters of Mangroves and Shallow Waters",
-  "Lemur",
-  "Leopard",
-  "Leopard Seal",
-  "Leopard Tortoise",
-  "Liger – Understanding The Hybrid Big Cats",
-  "Lion",
-  "Little Fairy Penguin",
-  "Little Owl  (Athene noctua) Facts",
-  "Lizards",
-  "Llama",
-  "Long Eared Owl",
-  "Long Horned Beetle",
-  "Longhorn Cowfish",
-  "Lynx",
-  "Macaque Monkeys",
-  "Macaroni Penguin",
-  "Magellanic Penguin",
-  "Magpie",
-  "Manatee",
-  "Maned Wolf",
-  "Mantis Shrimp",
-  "Manx Shearwater Bird",
-  "Marine Angelfish",
-  "Markhor",
-  "Masai Giraffe",
-  "Masked Finfoot Bird",
-  "Mayfly – A Glimpse Into Their Delicate Existence",
-  "Mealy Parrot",
-  "Meerkat",
-  "Mexican Wolf",
-  "Mice",
-  "Military Macaw Parrot",
-  "Milkweed Beetle",
-  "Millipedes",
-  "Mongoose",
-  "Monkeys",
-  "Moorhen",
-  "Moose",
-  "Moray Eel",
-  "Morpho Butterfly",
-  "Moth",
-  "Mottled Owl Facts",
-  "Mountain Goat",
-  "Mountain Gorillas",
-  "Mountain Zebra",
-  "Mourning Dove",
-  "Mouse Deer – Exploring the Smallest Hoofed Mammal",
-  "Mouse Spider",
-  "Mud Dauber Wasp",
-  "Musk Ox",
-  "Muskrat – Engineers Of The North American Wetlands",
-  "Natterjack Toad",
-  "New World Monkeys",
-  "New World Tarantula Spider",
-  "North American Beaver",
-  "Northern Mockingbird",
-  "Northern Short-tailed Shrew",
-  "Numbat",
-  "Nurse Shark",
-  "Ocelot",
-  "Okapi",
-  "Old World Monkeys",
-  "Old World Tarantula Spiders",
-  "Opossums",
-  "Orangutan",
-  "Orb Weaver Spiders",
-  "Oryx (Antelope)",
-  "Osprey",
-  "Ostrich Birds",
-  "Pantropical Spotted Dolphins",
-  "Paper Wasp",
-  "Parasitic Bees",
-  "Peacock Spiders – Australia’s Dancing Arachnids",
-  "Peafowl Peacock",
-  "Peccary (Javelina)",
-  "Penguin",
-  "Peregrine Falcon",
-  "Peruvian Fox",
-  "Pigs",
-  "Pine Marten",
-  "Piranha Fish",
-  "Plains Zebra",
-  "Poison Arrow Frogs",
-  "Poisonous Caterpillars",
-  "Polar Bear",
-  "Polecat",
-  "Pollan Fish",
-  "Porcupine",
-  "Possum",
-  "Potter Wasps",
-  "Prairie Dogs – A Keystone Species of the American Plains",
-  "Praying Mantis",
-  "Preuss’s Monkey",
-  "Pufferfish – Why They Inflate And Other Facts",
-  "Puma Cat",
-  "Pygmy Hippopotamus",
-  "Quagga Zebra",
-  "Quokka",
-  "Quolls",
-  "Rabbits",
-  "Raccoon",
-  "Raccoon Dog",
-  "Rainbow Bee Eater",
-  "Ratel",
-  "Rattlesnakes",
-  "Raven – Large, Mysterious and Devilishly Clever",
-  "Red Back Jumping Spiders",
-  "Red British Squirrel",
-  "Red Fox – Nature’s Original Artful Dodger",
-  "Red Kangaroo",
-  "Red Kite – A Symbol of Hope and Good Luck",
-  "Red Knot",
-  "Red Panda",
-  "Red Rock Crabs",
-  "Red Winged Blackbird",
-  "Red Wolf",
-  "Red-backed Shrike",
-  "Red-tailed Hawk",
-  "Reticulated Giraffe",
-  "Rhinoceros",
-  "Rhinoceros Beetle",
-  "Right Whales",
-  "Risso’s Dolphin",
-  "Roborovski Hamsters",
-  "Rockhopper Penguin",
-  "Rough-Toothed Dolphins",
-  "Royal Penguin",
-  "Sacred Ibis Bird",
-  "Saki Monkeys",
-  "Sally Lightfoot Crab",
-  "Sand Lizard",
-  "Scarlet Macaw",
-  "Schneider’s Dwarf Caiman",
-  "Scottish Crossbill",
-  "Sea Lion",
-  "Sea Snakes",
-  "Sea Urchin",
-  "Seagull",
-  "Seahorse",
-  "Seals",
-  "Secretary Bird",
-  "Serval – African Wild Cat",
-  "Shark",
-  "Sheep",
-  "Shoveler",
-  "Silvery Gibbon",
-  "Six Eyed Sand Spider",
-  "Skipper Butterflies",
-  "Skunk",
-  "Skylark",
-  "Slender Loris",
-  "Slipper Lobster",
-  "Sloth",
-  "Slow Worm",
-  "Slug",
-  "Snakes",
-  "Snares Penguin",
-  "Snow Goose",
-  "Snow Leopard",
-  "Snowshoe Hare",
-  "Solitary Bees",
-  "Song Thrush",
-  "South American Horned Frog – From Camouflage to Cannibalism",
-  "Southern Short-tailed Shrew",
-  "Spectacled Bear",
-  "Spectacled Owl Facts",
-  "Spectacled/Common Caiman",
-  "Spider Monkey",
-  "Spiders",
-  "Spinner Dolphins",
-  "Spiny Lobster",
-  "Spotted Beetle",
-  "Spotted Hyena",
-  "Squirrel Monkeys",
-  "St Andrews Cross Spider",
-  "Stag Beetle",
-  "Stellers Sea Cow",
-  "Stick Bugs – Nature’s Masters of Disguise",
-  "Stingless Bees",
-  "Stink Bugs",
-  "Stoat",
-  "Stone Curlew",
-  "Stone Dwelling Centipede",
-  "Striped Dolphins",
-  "Striped Hyena",
-  "Sturgeon – Ancient Freshwater Fish",
-  "Sugar Maple Borer Beetle",
-  "Sumatran Rhinoceros",
-  "Syrian Hamster",
-  "Tamarin Monkeys",
-  "Tangle Web Spiders",
-  "Tapir",
-  "Tarantula Hawk – Powerful Stingers In The Sky",
-  "Tarantula Spider",
-  "Tawny Eagle",
-  "Tawny Frogmouth",
-  "Tawny Owl",
-  "Teira Batfish (Platax teira)",
-  "Thomson’s Gazelle",
-  "Tiger Shark",
-  "Titi Monkeys",
-  "Toco Toucan",
-  "Tortoise",
-  "Trapdoor Spider",
-  "Tuatara",
-  "Tundra Swan",
-  "Tundra Wolf",
-  "Turkey Vulture",
-  "Turtles",
-  "Vampire Bats",
-  "Vendace Fish",
-  "Vulture",
-  "Wallaby",
-  "Walrus",
-  "Warthog",
-  "Wasps",
-  "Water Beetle",
-  "Waterbuck",
-  "Weasel",
-  "Weevil Beetle",
-  "West African Manatee",
-  "West Indian Manatee",
-  "Western Lowland Gorillas",
-  "Whales",
-  "White Bengal Tiger",
-  "White Rhino",
-  "White Stork Birds",
-  "White-clawed Crayfish",
-  "Wild Boar",
-  "Wild Rabbits",
-  "Wildebeest",
-  "Willow Ptarmigan",
-  "Winter White Russian Hamster",
-  "Wolf Eel – Neither Wolves nor Eels, but Wonders of the Deep",
-  "Wolf Spider",
-  "Wolverine",
-  "Wolves",
-  "Wombat",
-  "Worms",
-  "X-Ray Fish",
-  "Yacare Caimans",
-  "Yak – Gentle Giants Of High Altitudes",
-  "Yellow jacket Wasp",
-  "Yellow Sac Spider",
-  "Yellow-bellied marmot",
-  "Yellow-eyed Penguin",
-  "Yellowhammer",
-  "Zebras",
-];
-
 document.addEventListener("DOMContentLoaded", () => {
   // DOM Elements
   const wordDisplay = document.getElementById("word-display");
@@ -613,6 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const remainingGuessesEl = document.getElementById("remaining-guesses");
   const gameMessageEl = document.getElementById("game-message");
   const resetBtn = document.getElementById("reset-btn");
+  const categoryContainer = document.getElementById("category"); // Make sure HTML has id="category"
 
   // Hangman SVG Parts
   const hangmanParts = {
@@ -620,9 +13,9 @@ document.addEventListener("DOMContentLoaded", () => {
     body: document.getElementById("body"),
     leftArm: document.getElementById("left-arm"),
     rightArm: document.getElementById("right-arm"),
-    leftleg: document.getElementById("left-leg"),
+    leftLeg: document.getElementById("left-leg"),
     rightLeg: document.getElementById("right-leg"),
-    face: document.getElementById("face"),
+    face: document.getElementById("face")
   };
 
   // Game Variables
@@ -632,8 +25,264 @@ document.addEventListener("DOMContentLoaded", () => {
   let remainingGuesses = 6;
   let gameOver = false;
 
-  // Catergories and words
-  const wordCatergories = {
-    animals: [],
-  };
+  // Word lists (your massive lists including new categories)
+
+const words = {
+
+  animal: [
+    "dog","cat","tiger","lion","bear","shark","snake","eagle","frog","whale","horse",
+    "zebra","monkey","wolf","dolphin","giraffe","kangaroo","penguin","panda","rabbit",
+    "fox","cheetah","hamster","cow","sheep","goat","octopus","jellyfish","butterfly",
+    "mouse","rat","chicken","duck","turkey","camel","hippo","rhino","deer","squid",
+    "owl","hawk","alligator","ant","bison","beetle","crow","crocodile","crab","dove",
+    "donkey","eel","flamingo","gecko","gorilla","hedgehog","heron","hippopotamus",
+    "iguana","jaguar","koala","lemur","leopard","lobster","macaw","moose","narwhal",
+    "newt","otter","ox","parrot","peacock","pelican","platypus","porcupine","quail",
+    "rabbit","raccoon","ram","reindeer","robin","salmon","seahorse","seal","skunk",
+    "sloth","snail","swan","tapir","toucan","turkey","turtle","vulture","walrus","weasel",
+    "woodpecker","yak","zebu","armadillo","badger","bat","beaver","boar","butterfly",
+    "caribou","catfish","cheetah","clam","cobra","cougar","cow","coyote","crane","crow",
+    "deer","dingo","dolphin","donkey","duck","eel","falcon","ferret","finch","fox",
+    "gecko","gibbon","goat","goldfish","gorilla","grasshopper","grouse","guinea","hamster",
+    "hare","hawk","hedgehog","heron","herring","hippopotamus","hornet","horse","hummingbird",
+    "hyena","ibis","iguana","jackal","jaguar","jay","kangaroo","kingfisher","koala",
+    "koi","lemur","leopard","lion","lizard","lobster","macaw","magpie","mallard","manatee",
+    "mink","mole","mongoose","monkey","moose","moray","mouse","narwhal","newt","ocelot",
+    "octopus","opossum","orangutan","otter","owl","ox","panda","panther","parrot","peacock",
+    "pelican","penguin","pheasant","pig","pigeon","platypus","porcupine","possum","quail",
+    "rabbit","raccoon","rat","reindeer","rhinoceros","robin","salmon","scorpion","seahorse",
+    "seal","shark","sheep","shrimp","skunk","sloth","snail","snake","sparrow","squid",
+    "swan","tapir","tiger","toad","toucan","turkey","turtle","vulture","walrus","weasel",
+    "whale","wolf","wombat","woodpecker","yak","zebra"
+  ],
+
+  food: [
+    "apple","banana","orange","grapes","pear","peach","plum","cherry","strawberry",
+    "blueberry","raspberry","blackberry","pineapple","mango","papaya","kiwi","watermelon",
+    "cantaloupe","lemon","lime","tomato","carrot","broccoli","spinach","cabbage","lettuce",
+    "kale","onion","garlic","potato","sweetpotato","pumpkin","corn","peas","beans","rice",
+    "pasta","noodles","bread","bagel","bun","croissant","tortilla","pizza","burger","sandwich",
+    "hotdog","taco","burrito","sushi","ramen","dumpling","soup","stew","curry","salad","sausage",
+    "bacon","egg","omelette","cheese","milk","yogurt","butter","cream","icecream","cake","cookie",
+    "brownie","pie","pancake","waffle","muffin","donut","chocolate","candy","lollipop","chips",
+    "popcorn","pretzel","cracker","nuts","almond","peanut","cashew","hazelnut","walnut","pistachio",
+    "honey","jam","syrup","oil","vinegar","spaghetti","lasagna","macaroni","fettuccine","gnocchi",
+    "meatball","steak","chicken","beef","pork","lamb","turkey","duck","salmon","tuna","shrimp",
+    "lobster","crab","clam","oyster","squid","octopus","tofu","tempeh","seitan","beansprout",
+    "edamame","seaweed","mushroom","broth","noodle","pizza","burger","soup","sushi","pasta","pie",
+    "cake","cookie","chocolate","caramel","waffle","croissant","pudding","jelly","muffin","cupcake",
+    "brownie","cheesecake","icecream","sorbet","gelato","smoothie","milkshake","bagel","toast",
+    "sandwich","taco","burrito","hotdog","pancake","crepe","quiche","omelette","salad","fruit",
+    "vegetable","grain","cereal","rice","bread","cheese","butter","yogurt","cream"
+  ],
+
+  game: [
+    "chess","checkers","monopoly","scrabble","uno","poker","bridge","hearts","go","backgammon",
+    "tic","tac","toe","mahjong","mahjongg","dominoes","clue","battleship","risk","candyland",
+    "connectfour","trivialpursuit","pictionary","charades","hangman","bingo","settlers","catan",
+    "fortnite","minecraft","roblox","overwatch","valorant","apex","leagueoflegends","csgo",
+    "callofduty","pubg","halo","skyrim","zelda","mario","pokemon","sims","rocketleague","pong",
+    "tetris","pacman","mariokart","supermario","donkeykong","streetfighter","tekken","smashbros",
+    "animalcrossing","genshin","clashofclans","clashroyale","fifa","nba2k","madden","gta",
+    "assassinscreed","battlefield","fallguys","amongus","teamfortress","overcooked","stardewvalley",
+    "minecraftdungeons","terraria","robloxadoptme","valorantagents","warzone","codmobile","brawlstars",
+    "leaguewildrift","pokemonunite","slitherio","agario","fortnitenightmare","subwaysurfers","templerun"
+  ],
+
+  place: [
+    "school","beach","park","mall","library","museum","city","forest","island","mountain",
+    "airport","stadium","desert","village","bridge","castle","garden","cave","harbor",
+    "jungle","house","farm","zoo","factory","restaurant","hospital","bank","hotel","theater",
+    "station","market","church","mosque","temple","synagogue","stadium","arena","square",
+    "playground","stadium","highway","road","street","alley","court","plaza","pier","bay",
+    "valley","river","lake","ocean","pond","beachfront","cliff","canyon","hill","plateau",
+    "volcano","glacier","swamp","marsh","cave","mine","quarry","hut","lighthouse","tower"
+  ],
+
+  object: [
+    "phone","laptop","chair","table","pencil","backpack","bottle","car","ball","mirror",
+    "keyboard","clock","helmet","candle","camera","remote","glasses","wallet","shovel",
+    "blanket","toaster","charger","radio","broom","brush","flashlight","marker","stapler",
+    "headphones","controller","notebook","book","paper","eraser","pen","ruler","scissors",
+    "printer","monitor","lamp","microwave","oven","fan","chair","sofa","couch","bed","mat",
+    "tent","umbrella","boots","shoe","hat","coat","jacket","bag","backpack","stool","bin",
+    "bucket","mug","plate","fork","spoon","knife","cup","jar","tray","globe","map","calendar",
+    "calendar","clock","thermometer","compass","telescope","binoculars","magnifyingglass","key",
+    "lock","chain","rope","string","belt","brush","paintbrush","brush","hammer","screwdriver",
+    "wrench","pliers","drill","saw","knife","spade","hoe","rake"
+  ],
+
+  sport: [
+    "soccer","basketball","baseball","football","tennis","golf","swimming","boxing",
+    "hockey","volleyball","track","wrestling","rugby","cycling","skiing","snowboarding",
+    "karate","bowling","archery","fencing","rowing","gymnastics","skateboarding","surfing",
+    "badminton","cricket","handball","judo","lacrosse","martialarts","polo","softball",
+    "tabletennis","taekwondo","triathlon","weightlifting","yoga","kickboxing","sailing",
+    "diving","climbing","snowboarding","sledding","icehockey","figure skating","speedskating",
+    "kayaking","canoeing","surfing","windsurfing","paragliding","bmx","rollerblading","motocross",
+    "paintball","laser tag","archerytag","parkour","skating","crossfit","pilates","fencing",
+    "squash","racquetball","trackandfield","rugbyunion","rugbyeight","americanfootball","soccerfutsal","handballbeach","volleyballbeach","softballfastpitch","floorball","iceclimbing",
+    "mountainbiking","orienteering","triathlonsprint","swimrun","ultramarathon","trailrunning"
+  ],
+movies: [
+  "inception","titanic","avatar","avengers","frozen","jurassicpark","harrypotter",
+  "spiderman","batman","superman","ironman","guardiansofthegalaxy",
+  "starwars","interstellar","matrix","gladiator","incredibles","frozen","toy","story",
+  "up","coco","findingnemo","lionking","aladdin","moana","encanto","cars","frozen",
+  "wonderwoman","blackpanther","antman","doctorstrange","thor","shrek",
+  "tangled","brave","wreckitralph","insideout","zootopia","frozen","encanto","lightyear"
+],
+
+body: [
+  "head","arm","leg","hand","foot","eye","ear","nose","mouth","neck","shoulder","chest",
+  "back","stomach","knee","elbow","wrist","ankle","finger","toe","hair","brain","heart",
+  "lung","liver","kidney","teeth","tongue","skin","spine","rib","pelvis","thigh","calf",
+  "heel","forearm","eyebrow","eyelash","cheek","chin","jaw","shoulderblade","collarbone",
+  "palm","fingernail","toenail","thumb","indexfinger","middlefinger","ringfinger","pinky"
+],
+
+health: [
+  "exercise","diet","sleep","hydration","vitamin","protein","minerals","cardio","strength",
+  "stretching","yoga","meditation","mentalhealth","stress","wellbeing","nutrition","balance",
+  "immunity","relaxation","hygiene","doctor","checkup","vaccine","workout","endurance",
+  "flexibility","calories","metabolism","cholesterol","bloodpressure","hearthealth",
+  "mindfulness","recovery","supplement","prevention","therapy","rehabilitation","walking",
+  "running","swimming","cycling","rest","hydrated","healthy","organic","wholefoods"
+]
+
+};
+  // Initialize Game
+  function initGame() {
+    correctLetters = [];
+    wrongLetters = [];
+    remainingGuesses = 6;
+    gameOver = false;
+    gameMessageEl.textContent = "";
+
+    // Pick random word & category
+    const categories = Object.keys(words);
+    const randomCategory = categories[Math.floor(Math.random() * categories.length)];
+    const wordList = words[randomCategory];
+    selectedWord = wordList[Math.floor(Math.random() * wordList.length)];
+
+    // Update UI
+    if (categoryContainer) {
+      categoryContainer.textContent = "Category: " + randomCategory;
+    }
+    remainingGuessesEl.textContent = `Remaining guesses: ${remainingGuesses}`;
+
+    // Hide all hangman parts
+    Object.values(hangmanParts).forEach(part => part.style.display = "none");
+
+    // Display blanks for the word
+    wordDisplay.innerHTML = "";
+    for (let i = 0; i < selectedWord.length; i++) {
+      const letterEl = document.createElement("div");
+      letterEl.classList.add("word-letter");
+      letterEl.dataset.letter = selectedWord[i].toUpperCase();
+      letterEl.textContent = "_";
+      wordDisplay.appendChild(letterEl);
+    }
+
+    // Create keyboard
+    keyboard.innerHTML = "";
+    for (let i = 65; i <= 90; i++) {
+      const letter = String.fromCharCode(i);
+      const keyEl = document.createElement("button");
+      keyEl.classList.add("keyboard-letter");
+      keyEl.textContent = letter;
+      keyEl.dataset.letter = letter;
+      keyEl.addEventListener("click", () => handleGuess(letter));
+      keyboard.appendChild(keyEl);
+    }
+  }
+
+  // Handle guess
+  function handleGuess(letter) {
+    if (gameOver || correctLetters.includes(letter) || wrongLetters.includes(letter)) return;
+
+    if (selectedWord.toUpperCase().includes(letter)) {
+      correctLetters.push(letter);
+      updateWordDisplay();
+      // Mark keyboard letter as correct
+      const key = document.querySelector(`.keyboard-letter[data-letter="${letter}"]`);
+      if (key) key.classList.add("correct", "used");
+
+      if (checkWin()) {
+        gameOver = true;
+        gameMessageEl.textContent = "Congrats! You Won!";
+        gameMessageEl.style.color = "green";
+      }
+    } else {
+      wrongLetters.push(letter);
+      remainingGuesses--;
+      remainingGuessesEl.textContent = `Remaining guesses: ${remainingGuesses}`;
+
+      // Mark keyboard letter as wrong
+      const key = document.querySelector(`.keyboard-letter[data-letter="${letter}"]`);
+      if (key) key.classList.add("wrong", "used");
+
+      updateHangmanDrawing();
+
+      if (remainingGuesses === 0) {
+        gameOver = true;
+        gameMessageEl.textContent = `Game Over! The word was: ${selectedWord}`;
+        gameMessageEl.style.color = "red";
+
+        hangmanParts.face.style.display = "block";
+
+        document.querySelectorAll(".word-letter").forEach(el => {
+          el.textContent = el.dataset.letter;
+        });
+      }
+    }
+  }
+
+  // Update word display
+  function updateWordDisplay() {
+    document.querySelectorAll(".word-letter").forEach(el => {
+      const letter = el.dataset.letter;
+      if (correctLetters.includes(letter)) {
+        el.textContent = letter;
+      }
+    });
+  }
+
+  // Check win
+  function checkWin() {
+    return selectedWord.toUpperCase().split("").every(letter => correctLetters.includes(letter));
+  }
+
+  // Update hangman drawing
+  function updateHangmanDrawing() {
+    switch (wrongLetters.length) {
+      case 1: hangmanParts.head.style.display = "block"; break;
+      case 2: hangmanParts.body.style.display = "block"; break;
+      case 3: hangmanParts.leftArm.style.display = "block"; break;
+      case 4: hangmanParts.rightArm.style.display = "block"; break;
+      case 5: hangmanParts.leftLeg.style.display = "block"; break;
+      case 6: hangmanParts.rightLeg.style.display = "block"; break;
+    }
+  }
+
+  // Keyboard typing support
+  document.addEventListener("keydown", e => {
+    if (/^[a-z]$/i.test(e.key)) handleGuess(e.key.toUpperCase());
+  });
+
+  // Reset button
+  resetBtn.addEventListener("click", initGame);
+
+  // Start the game
+  initGame();
 });
+
+// To Do List:
+
+// Have to code for it to be able to type in the letters instead of clicking them with the mouse
+// Have the difficulties appear ex. Easy Medium Hard Advanced
+// For each different difficulty have one less balloon/live for each difficulty ex: Easy - 7, Medium - 6, Hard - 5, Advanced - 4
+// Have it to where it can be played with different games modes ex: quick play, private game, single player
+// Put in a room code instead of copying a link for the private game mode
+// for the quick play mode put in bots that play the game against you
+// style it a bunch as well
