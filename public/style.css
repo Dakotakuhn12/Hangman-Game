@@ -66,6 +66,11 @@ h1 {
     border-bottom: 3px solid var(--dark);
 }
 
+.word-space {
+  width: 20px;   /* adjust as needed */
+}
+
+
 .keyboard {
     display: flex;
     flex-wrap: wrap;
