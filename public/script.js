@@ -52,12 +52,13 @@ socket.on("connect", () => {
 
 document.addEventListener("DOMContentLoaded", () => {
   // DOM Elements
+  const difficulty_dropdown = document.getElementById("diffictuly_drop");
   const wordDisplay = document.getElementById("word-display");
   const keyboard = document.getElementById("keyboard");
   const remainingGuessesEl = document.getElementById("remaining-guesses");
   const gameMessageEl = document.getElementById("game-message");
   const resetBtn = document.getElementById("reset-btn");
-  const categoryContainer = document.getElementById("category"); // Make sure HTML has id="category"
+  const categoryContainer = document.getElementById("category");
 
   // Hangman SVG Parts
   const hangmanParts = {
@@ -74,17 +75,20 @@ document.addEventListener("DOMContentLoaded", () => {
   let selectedWord = "";
   let correctLetters = [];
   let wrongLetters = [];
-  let remainingGuesses = 6;
+  let remainingGuesses;
   let gameOver = false;
+  let difficulty;
 
   // Word lists (your massive lists including new categories)
   // Initialize Game
   function initGame() {
     correctLetters = [];
     wrongLetters = [];
-    remainingGuesses = 6;
     gameOver = false;
     gameMessageEl.textContent = "";
+    const d = get_difficulty(difficulty_dropdown);
+    remainingGuesses = d.remainingGuesses;
+    difficulty = d.difficulty;
 
     for (let i = 0; i < selectedWord.length; i++) {
       const letter = selectedWord[i];
@@ -198,7 +202,7 @@ document.addEventListener("DOMContentLoaded", () => {
       );
       if (key) key.classList.add("wrong", "used");
 
-      updateHangmanDrawing();
+      updateHangmanDrawing(difficulty);
 
       if (remainingGuesses === 0) {
         gameOver = true;
@@ -233,26 +237,82 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Update hangman drawing
-  function updateHangmanDrawing() {
-    switch (wrongLetters.length) {
-      case 1:
-        hangmanParts.head.style.display = "block";
-        break;
-      case 2:
-        hangmanParts.body.style.display = "block";
-        break;
-      case 3:
-        hangmanParts.leftArm.style.display = "block";
-        break;
-      case 4:
-        hangmanParts.rightArm.style.display = "block";
-        break;
-      case 5:
-        hangmanParts.leftLeg.style.display = "block";
-        break;
-      case 6:
-        hangmanParts.rightLeg.style.display = "block";
-        break;
+  function updateHangmanDrawing(difficulty) {
+    if (difficulty === "Easy") {
+      switch (wrongLetters.length) {
+        case 1:
+          hangmanParts.head.style.display = "block";
+          break;
+        case 2:
+          hangmanParts.body.style.display = "block";
+          break;
+        case 3:
+          hangmanParts.leftArm.style.display = "block";
+          break;
+        case 4:
+          hangmanParts.rightArm.style.display = "block";
+          break;
+        case 5:
+          hangmanParts.leftLeg.style.display = "block";
+          break;
+        case 6:
+          hangmanParts.rightLeg.style.display = "block";
+          break;
+      }
+    }
+    if (difficulty === "Medium") {
+      switch (wrongLetters.length) {
+        case 1:
+          hangmanParts.head.style.display = "block";
+          break;
+        case 2:
+          hangmanParts.body.style.display = "block";
+          break;
+        case 3:
+          hangmanParts.leftArm.style.display = "block";
+          hangmanParts.rightArm.style.display = "block";
+          break;
+        case 4:
+          hangmanParts.leftLeg.style.display = "block";
+          break;
+        case 5:
+          hangmanParts.rightLeg.style.display = "block";
+          break;
+      }
+    }
+    if (difficulty === "Hard") {
+      switch (wrongLetters.length) {
+        case 1:
+          hangmanParts.head.style.display = "block";
+          break;
+        case 2:
+          hangmanParts.body.style.display = "block";
+          break;
+        case 3:
+          hangmanParts.leftArm.style.display = "block";
+          hangmanParts.rightArm.style.display = "block";
+          break;
+        case 4:
+          hangmanParts.leftLeg.style.display = "block";
+          hangmanParts.rightLeg.style.display = "block";
+          break;
+      }
+    }
+    if (difficulty === "Advanced") {
+      switch (wrongLetters.length) {
+        case 1:
+          hangmanParts.head.style.display = "block";
+          break;
+        case 2:
+          hangmanParts.body.style.display = "block";
+          hangmanParts.leftArm.style.display = "block";
+          hangmanParts.rightArm.style.display = "block";
+          break;
+        case 3:
+          hangmanParts.leftLeg.style.display = "block";
+          hangmanParts.rightLeg.style.display = "block";
+          break;
+      }
     }
   }
 
@@ -265,8 +325,33 @@ document.addEventListener("DOMContentLoaded", () => {
   resetBtn.addEventListener("click", initGame);
 
   // Start the game
+  difficulty_dropdown.addEventListener("change", () => {
+    const d = get_difficulty(difficulty_dropdown);
+    remainingGuesses = d.remainingGuesses;
+    difficulty = d.difficulty;
+
+    remainingGuessesEl.textContent = `Remaining guesses: ${remainingGuesses}`;
+  });
+
   initGame();
 });
+
+function get_difficulty(difficulty_dropdown) {
+  const diff = difficulty_dropdown.value;
+
+  if (diff === "easy") {
+    return { difficulty: "Easy", remainingGuesses: 6 };
+  }
+  if (diff === "Medium") {
+    return { difficulty: "Medium", remainingGuesses: 5 };
+  }
+  if (diff === "Hard") {
+    return { difficulty: "Hard", remainingGuesses: 4 };
+  }
+  if (diff === "Advanced") {
+    return { difficulty: "Advanced", remainingGuesses: 3 };
+  }
+}
 
 // To Do List:
 
