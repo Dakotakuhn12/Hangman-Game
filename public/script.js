@@ -40,6 +40,23 @@ document.addEventListener("DOMContentLoaded", () => {
     remainingGuesses = d.remainingGuesses;
     difficulty = d.difficulty;
 
+    for (let i = 0; i < selectedWord.length; i++) {
+      const letter = selectedWord[i];
+      const letterEl = document.createElement("div");
+
+      if (letter === " ") {
+        // Space between words
+        letterEl.classList.add("word-space");
+        letterEl.textContent = "";
+      } else {
+        letterEl.classList.add("word-letter");
+        letterEl.dataset.letter = letter.toUpperCase();
+        letterEl.textContent = "_";
+      }
+
+      wordDisplay.appendChild(letterEl);
+    }
+
     // Pick random word & category
     const categories = Object.keys(words);
     const randomCategory =
@@ -59,14 +76,34 @@ document.addEventListener("DOMContentLoaded", () => {
     );
 
     // Display blanks for the word
+    // Display blanks for the word
     wordDisplay.innerHTML = "";
-    for (let i = 0; i < selectedWord.length; i++) {
-      const letterEl = document.createElement("div");
-      letterEl.classList.add("word-letter");
-      letterEl.dataset.letter = selectedWord[i].toUpperCase();
-      letterEl.textContent = "_";
-      wordDisplay.appendChild(letterEl);
-    }
+
+    // Split the phrase into words
+    const wordsInPhrase = selectedWord.split(" ");
+
+    wordsInPhrase.forEach((word, wordIndex) => {
+      const wordEl = document.createElement("div");
+      wordEl.classList.add("word-group"); // wrap each word
+
+      // Add letters
+      for (let i = 0; i < word.length; i++) {
+        const letterEl = document.createElement("div");
+        letterEl.classList.add("word-letter");
+        letterEl.dataset.letter = word[i].toUpperCase();
+        letterEl.textContent = "_";
+        wordEl.appendChild(letterEl);
+      }
+
+      wordDisplay.appendChild(wordEl);
+
+      // Add space between words (except last)
+      if (wordIndex < wordsInPhrase.length - 1) {
+        const spaceEl = document.createElement("div");
+        spaceEl.classList.add("word-space");
+        wordDisplay.appendChild(spaceEl);
+      }
+    });
 
     // Create keyboard
     keyboard.innerHTML = "";
@@ -146,7 +183,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return selectedWord
       .toUpperCase()
       .split("")
-      .every((letter) => correctLetters.includes(letter));
+      .every((letter) => letter === " " || correctLetters.includes(letter));
   }
 
   // Update hangman drawing
