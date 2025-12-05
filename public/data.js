@@ -1845,7 +1845,7 @@ export const place = [
   "rocket_hangar",
   "astronaut_training_center",
   "space_simulator_room",
-  "mission_control"
+  "mission_control",
 ];
 
 export const object = [
@@ -1946,7 +1946,7 @@ export const object = [
   "spade",
   "hoe",
   "rake",
-    "tablet",
+  "tablet",
   "smartwatch",
   "earbuds",
   "powerbank",
@@ -2152,7 +2152,7 @@ export const object = [
   "doorbell",
   "thermostat",
   "smoke_detector",
-  "carbon_monoxide_detector"
+  "carbon_monoxide_detector",
 ];
 
 export const sport = [

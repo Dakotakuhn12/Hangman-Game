@@ -1,4 +1,54 @@
 import { words } from "./data.js";
+const socket = io();
+
+const logEl = document.getElementById("log");
+const roomCodeEl = document.getElementById("room-code");
+const usernameInput = document.getElementById("username");
+
+function log(msg) {
+  const p = document.createElement("p");
+  p.textContent = msg;
+  logEl.appendChild(p);
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+document.getElementById("create-room-btn").addEventListener("click", () => {
+  const username = usernameInput.value.trim();
+  if (!username) return alert("Enter a username");
+
+  socket.emit("createRoom", username, (roomCode) => {
+    roomCodeEl.textContent = roomCode;
+    log(`Room created: ${roomCode} (you are the creator)`);
+  });
+});
+
+document.getElementById("join-room-btn").addEventListener("click", () => {
+  const username = usernameInput.value.trim();
+  if (!username) return alert("Enter a username");
+
+  const code = prompt("Enter room code:");
+  if (!code) return;
+
+  socket.emit("joinRoom", code.toUpperCase(), username, (response) => {
+    if (response.success) {
+      roomCodeEl.textContent = code.toUpperCase();
+      log(`Joined room: ${code.toUpperCase()}`);
+    } else {
+      log(`Failed to join: ${response.message}`);
+    }
+  });
+});
+
+socket.on("logMessage", (msg) => log(msg));
+
+socket.on("disconnect", (reason) => {
+  log(`Disconnected from server: ${reason}`);
+  alert("You were disconnected. The room may have closed if the creator left.");
+});
+
+socket.on("connect", () => {
+  log(`Connected to server (ID: ${socket.id})`);
+});
 
 document.addEventListener("DOMContentLoaded", () => {
   // DOM Elements

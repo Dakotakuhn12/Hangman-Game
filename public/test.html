@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Room Test</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    button { margin: 5px; padding: 10px 20px; }
+    #log { border: 1px solid #ccc; padding: 10px; height: 200px; overflow-y: scroll; }
+  </style>
+</head>
+<body>
+  <h1>Room Test</h1>
+
+  <label>Username: <input type="text" id="username" placeholder="Enter username"></label>
+  <button id="create-room-btn">Create Room</button>
+  <button id="join-room-btn">Join Room</button>
+
+  <div>
+    <p>Room Code: <span id="room-code">None</span></p>
+  </div>
+
+  <h3>Logs:</h3>
+  <div id="log"></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const logEl = document.getElementById("log");
+    const roomCodeEl = document.getElementById("room-code");
+    const usernameInput = document.getElementById("username");
+
+    function log(msg) {
+      const p = document.createElement("p");
+      p.textContent = msg;
+      logEl.appendChild(p);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    document.getElementById("create-room-btn").addEventListener("click", () => {
+      const username = usernameInput.value.trim();
+      if (!username) return alert("Enter a username");
+
+      socket.emit("createRoom", username, (roomCode) => {
+        roomCodeEl.textContent = roomCode;
+        log(`Room created: ${roomCode} (you are the creator)`);
+      });
+    });
+
+    document.getElementById("join-room-btn").addEventListener("click", () => {
+      const username = usernameInput.value.trim();
+      if (!username) return alert("Enter a username");
+
+      const code = prompt("Enter room code:");
+      if (!code) return;
+
+      socket.emit("joinRoom", code.toUpperCase(), username, (response) => {
+        if (response.success) {
+          roomCodeEl.textContent = code.toUpperCase();
+          log(`Joined room: ${code.toUpperCase()}`);
+        } else {
+          log(`Failed to join: ${response.message}`);
+        }
+      });
+    });
+
+    socket.on("logMessage", msg => log(msg));
+
+    socket.on("disconnect", reason => {
+      log(`Disconnected from server: ${reason}`);
+      alert("You were disconnected. The room may have closed if the creator left.");
+    });
+
+    socket.on("connect", () => {
+      log(`Connected to server (ID: ${socket.id})`);
+    });
+  </script>
+</body>
+</html>
