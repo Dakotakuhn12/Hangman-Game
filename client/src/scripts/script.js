@@ -343,13 +343,3 @@ function get_difficulty(difficulty_dropdown) {
     return { difficulty: "Advanced", remainingGuesses: 3 };
   }
 }
-
-// To Do List:
-
-// Have the difficulties appear ex. Easy Medium Hard Advanced
-// For each different difficulty have one less guess for each difficulty ex: Easy - 6, Medium - 5, Hard - 4, Advanced - 3
-// Have it to where it can be played with different games modes ex: quick play, private game, single player
-// Put in a room code instead of copying a link for the private game mode
-// for the quick play mode put in bots that play the game against you
-// style it a bunch as well
-// have it where there is spaces and dashes as well
