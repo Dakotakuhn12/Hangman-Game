@@ -8,7 +8,7 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="./css/style.css" />
     <style>
       #room-log { border: 1px solid #ccc; padding: 10px; height: 120px; overflow-y: scroll; margin-top: 10px; }
       #room-controls { margin-bottom: 15px; }
@@ -24,10 +24,6 @@
         <button id="create-room-btn">Create Room</button>
         <button id="join-room-btn">Join Room</button>
         <p>Room Code: <span id="room-code">None</span></p>
-      </div>
-
-      <div id="room-log">
-        <strong>Room Messages:</strong>
       </div>
 
       <div class="game-status">
@@ -75,6 +71,6 @@
       </button>
     </div>
     <script src="/socket.io/socket.io.js"></script>
-    <script type="module" src="script.js"></script>
+    <script type="module" src="./scripts/script.js"></script>
   </body>
 </html>

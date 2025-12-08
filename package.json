@@ -3,15 +3,19 @@
   "version": "1.0.0",
   "description": "DONT TOUCH MY STUFF YOU NOOBS!",
   "main": "index.js",
+  "homepage": "https://dakotakuhn12.github.io/Hangman-Game/",
   "scripts": {
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "prestart": "node ./scripts/upload.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "Dakota Kuhn",
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "dotenv": "^17.2.3",
     "express": "^5.2.1",
+    "mongodb": "^7.0.0",
     "socket.io": "^4.8.1"
   },
   "devDependencies": {
