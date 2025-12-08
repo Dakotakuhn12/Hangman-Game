@@ -5,13 +5,6 @@ const logEl = document.getElementById("log");
 const roomCodeEl = document.getElementById("room-code");
 const usernameInput = document.getElementById("username");
 
-function log(msg) {
-  const p = document.createElement("p");
-  p.textContent = msg;
-  logEl.appendChild(p);
-  logEl.scrollTop = logEl.scrollHeight;
-}
-
 document.getElementById("create-room-btn").addEventListener("click", () => {
   const username = usernameInput.value.trim();
   if (!username) return alert("Enter a username");
@@ -38,8 +31,6 @@ document.getElementById("join-room-btn").addEventListener("click", () => {
     }
   });
 });
-
-socket.on("logMessage", (msg) => log(msg));
 
 socket.on("disconnect", (reason) => {
   log(`Disconnected from server: ${reason}`);
@@ -105,14 +96,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       wordDisplay.appendChild(letterEl);
-
-      // Numbered words but preserve answer
-      Object.keys(words).forEach((category) => {
-        words[category] = words[category].map((word, index) => ({
-          display: `${index + 1}. ${word}`, // What the player SEES
-          answer: word, // What the player GUESSES
-        }));
-      });
     }
 
     // Pick random word & category
@@ -120,9 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const randomCategory =
       categories[Math.floor(Math.random() * categories.length)];
     const wordList = words[randomCategory];
-    const picked = wordList[Math.floor(Math.random() * wordList.length)];
-    selectedWord = picked.answer.toUpperCase(); // Gameplay word
-    displayWord = picked.display.toUpperCase(); // Visual word (with numbers)
+    selectedWord = wordList[Math.floor(Math.random() * wordList.length)];
 
     // Update UI
     if (categoryContainer) {
@@ -140,7 +121,7 @@ document.addEventListener("DOMContentLoaded", () => {
     wordDisplay.innerHTML = "";
 
     // Split the phrase into words
-    const wordsInPhrase = displayWord.split(" ");
+    const wordsInPhrase = selectedWord.split(" ");
 
     wordsInPhrase.forEach((word, wordIndex) => {
       const wordEl = document.createElement("div");
@@ -151,12 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const letterEl = document.createElement("div");
         letterEl.classList.add("word-letter");
         letterEl.dataset.letter = word[i].toUpperCase();
-        if (!/[A-Z]/.test(word[i])) {
-          // Auto-show numbers, spaces, punctuation, dashes, etc.
-          letterEl.textContent = word[i];
-        } else {
-          letterEl.textContent = "_";
-        }
+        letterEl.textContent = "_";
         wordEl.appendChild(letterEl);
       }
 
@@ -370,9 +346,10 @@ function get_difficulty(difficulty_dropdown) {
 
 // To Do List:
 
+// Have the difficulties appear ex. Easy Medium Hard Advanced
+// For each different difficulty have one less guess for each difficulty ex: Easy - 6, Medium - 5, Hard - 4, Advanced - 3
 // Have it to where it can be played with different games modes ex: quick play, private game, single player
 // Put in a room code instead of copying a link for the private game mode
 // for the quick play mode put in bots that play the game against you
 // style it a bunch as well
 // have it where there is spaces and dashes as well
-// have it so that it automatically shows the numbers with the word
