@@ -117,34 +117,30 @@ document.addEventListener("DOMContentLoaded", () => {
     );
 
     // Display blanks for the word
-    // Display blanks for the word
     wordDisplay.innerHTML = "";
 
-    // Split the phrase into words
-    const wordsInPhrase = selectedWord.split(" ");
+    // Loop through each character in the selected word
+    for (let i = 0; i < selectedWord.length; i++) {
+      const char = selectedWord[i];
+      const letterEl = document.createElement("div");
+      letterEl.classList.add("word-letter");
+      letterEl.dataset.letter = char.toUpperCase();
 
-    wordsInPhrase.forEach((word, wordIndex) => {
-      const wordEl = document.createElement("div");
-      wordEl.classList.add("word-group"); // wrap each word
-
-      // Add letters
-      for (let i = 0; i < word.length; i++) {
-        const letterEl = document.createElement("div");
-        letterEl.classList.add("word-letter");
-        letterEl.dataset.letter = word[i].toUpperCase();
+      if (char === " ") {
+        // Keep spaces as empty placeholders
+        letterEl.classList.add("word-space");
+        letterEl.textContent = "";
+      } else if (/[A-Z]/i.test(char)) {
+        // Letters show as underscores
         letterEl.textContent = "_";
-        wordEl.appendChild(letterEl);
+      } else {
+        // Non-letter characters (punctuation, numbers, etc.) are shown automatically
+        letterEl.textContent = char;
+        correctLetters.push(char.toUpperCase()); // treat as already guessed
       }
 
-      wordDisplay.appendChild(wordEl);
-
-      // Add space between words (except last)
-      if (wordIndex < wordsInPhrase.length - 1) {
-        const spaceEl = document.createElement("div");
-        spaceEl.classList.add("word-space");
-        wordDisplay.appendChild(spaceEl);
-      }
-    });
+      wordDisplay.appendChild(letterEl);
+    }
 
     // Create keyboard
     keyboard.innerHTML = "";
