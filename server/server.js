@@ -37,7 +37,7 @@ app.get("/test", (req, res) => {
 
 setupRooms(io)
 
-router.get("/words", async (req, res) => {
+app.get("/words", async (req, res) => {
   try {
     const { category, limit } = req.query;
     
@@ -70,7 +70,7 @@ router.get("/words", async (req, res) => {
 });
 
 // API endpoint to get categories
-router.get("/categories", async (req, res) => {
+app.get("/categories", async (req, res) => {
   try {
     const collection = db.collection("words");
     const categories = await collection.distinct("category");
