@@ -1,16 +1,8 @@
-import { words } from "./data.js";
 const socket = io();
 
 const logEl = document.getElementById("log");
 const roomCodeEl = document.getElementById("room-code");
 const usernameInput = document.getElementById("username");
-
-function log(msg) {
-  const p = document.createElement("p");
-  p.textContent = msg;
-  logEl.appendChild(p);
-  logEl.scrollTop = logEl.scrollHeight;
-}
 
 document.getElementById("create-room-btn").addEventListener("click", () => {
   const username = usernameInput.value.trim();
@@ -38,8 +30,6 @@ document.getElementById("join-room-btn").addEventListener("click", () => {
     }
   });
 });
-
-socket.on("logMessage", (msg) => log(msg));
 
 socket.on("disconnect", (reason) => {
   log(`Disconnected from server: ${reason}`);

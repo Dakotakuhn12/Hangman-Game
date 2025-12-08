@@ -1,4 +1,4 @@
-import { generateRoomCode } from "./utils.js";
+import { generateRoomCode } from "../utils/utils.js";
 
 export function setupRooms(io) {
   const rooms = {}; // roomCode -> { creator, players: [{id, username}] }

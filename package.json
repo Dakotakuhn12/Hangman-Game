@@ -5,7 +5,7 @@
   "main": "index.js",
   "homepage": "https://dakotakuhn12.github.io/Hangman-Game/",
   "scripts": {
-    "dev": "nodemon server.js",
+    "dev": "nodemon server/server.js",
     "prestart": "node ./scripts/upload.js"
   },
   "keywords": [],
