@@ -16,7 +16,7 @@ import {
   object,
   place,
   sport,
-} from "./public/data.js";
+} from "../../client/src/scripts/data.js";
 
 const uri = process.env.MONGODB_URI;
 

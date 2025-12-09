@@ -37,7 +37,7 @@ export const animal = [
   "ptarmigan bird",
   "purple martin",
   "crow",
-  "grey wolf"
+  "grey wolf",
 ];
 
 export const food = [
@@ -129,6 +129,7 @@ export const food = [
   "cashew milk",
   "coconut milk",
   "hazelnut milk",
+  "taco",
 ];
 
 export const game = [
