@@ -1,7 +1,6 @@
 import { words } from "./data.js";
 const socket = io();
 
-const logEl = document.getElementById("log");
 const roomCodeEl = document.getElementById("room-code");
 const usernameInput = document.getElementById("username");
 
@@ -11,7 +10,7 @@ document.getElementById("create-room-btn").addEventListener("click", () => {
 
   socket.emit("createRoom", username, (roomCode) => {
     roomCodeEl.textContent = roomCode;
-    log(`Room created: ${roomCode} (you are the creator)`);
+    console.console.log(`Room created: ${roomCode} (you are the creator)`);
   });
 });
 
@@ -25,20 +24,20 @@ document.getElementById("join-room-btn").addEventListener("click", () => {
   socket.emit("joinRoom", code.toUpperCase(), username, (response) => {
     if (response.success) {
       roomCodeEl.textContent = code.toUpperCase();
-      log(`Joined room: ${code.toUpperCase()}`);
+      console.log(`Joined room: ${code.toUpperCase()}`);
     } else {
-      log(`Failed to join: ${response.message}`);
+      console.log(`Failed to join: ${response.message}`);
     }
   });
 });
 
 socket.on("disconnect", (reason) => {
-  log(`Disconnected from server: ${reason}`);
+  console.log(`Disconnected from server: ${reason}`);
   alert("You were disconnected. The room may have closed if the creator left.");
 });
 
 socket.on("connect", () => {
-  log(`Connected to server (ID: ${socket.id})`);
+  console.log(`Connected to server (ID: ${socket.id})`);
 });
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -298,7 +297,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Keyboard typing support
   document.addEventListener("keydown", (e) => {
-    if (/^[a-z]$/i.test(e.key)) handleGuess(e.key.toUpperCase());
+    const active = document.activeElement;
+
+    // If user is typing in an input or textarea, ignore key presses
+    if (active.tagName === "INPUT" || active.tagName === "TEXTAREA") {
+      return;
+    }
+
+    // Otherwise handle guess
+    if (/^[a-z]$/i.test(e.key)) {
+      handleGuess(e.key.toUpperCase());
+    }
   });
 
   // Reset button
