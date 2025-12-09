@@ -16,6 +16,8 @@ export function setupRooms(io) {
       rooms[roomCode] = {
         creator: socket.id,
         players: [{ id: socket.id, username }],
+        wordChooserId: null,
+        word: null,
       };
       socket.join(roomCode);
 
@@ -39,6 +41,43 @@ export function setupRooms(io) {
       } else {
         callback({ success: false, message: "Room not found" });
       }
+    });
+
+    socket.on("startGame", (roomCode) => {
+      const room = rooms[roomCode];
+      if (!room) {
+        console.log("Sending invalid room code " + roomCode);
+        return;
+      }
+
+      if (!room.wordChooserId) {
+        const randomIndex = Math.floor(Math.random() * room.players.length);
+        room.wordChooserId = room.players[randomIndex].id;
+      }
+
+      room.players.forEach((player) => {
+        if (player.id === room.wordChooserId) {
+          io.to(player.id).emit("chooseWord");
+        } else {
+          io.to(player.id).emit("waitForWord");
+        }
+      });
+    });
+
+    socket.on("submitWord", (roomCode, word) => {
+      const room = rooms[roomCode];
+      if (!room || socket.id !== room.wordChooserId) return;
+
+      room.word = word.toUpperCase();
+
+      // Notify all players that game has started
+      room.players.forEach((player) => {
+        io.to(player.id).emit("gameStarted", {
+          wordLength: word.length,
+          word, // optional: can be null/underscores for others
+          chooser: room.wordChooserId,
+        });
+      });
     });
 
     socket.on("disconnect", () => {

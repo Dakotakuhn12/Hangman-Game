@@ -3,7 +3,7 @@ const socket = io();
 const roomCodeEl = document.getElementById("room-code");
 const usernameInput = document.getElementById("username");
 
-let inRoom = false
+let inRoom = false;
 
 // -------------------------------
 // CREATE ROOM
@@ -42,7 +42,7 @@ document.getElementById("join-room-btn").addEventListener("click", () => {
   socket.emit("joinRoom", normalizedCode, username, (response) => {
     if (response.success) {
       roomCodeEl.textContent = normalizedCode;
-      inRoom = true
+      inRoom = true;
       console.log(`Joined room: ${normalizedCode}`);
 
       // Optional: update UI
@@ -61,12 +61,43 @@ socket.on("connect", () => {
   console.log(`Connected to server (ID: ${socket.id})`);
 });
 
+socket.on("chooseWord", () => {
+  const word = prompt(
+    "You are the word chooser! Enter a word for others to guess:"
+  );
+  if (word) {
+    socket.emit("submitWord", roomCodeEl.textContent, word);
+  }
+});
+
+socket.on("waitForWord", () => {
+  alert("Waiting for the host to choose a word...");
+});
+
+// When game starts
+socket.on("gameStarted", ({ wordLength, word, chooser }) => {
+  // Initialize word display with underscores for non-choosers
+  selectedWord = word;
+  correctLetters = chooser === socket.id ? word.split("") : [];
+  wrongLetters = [];
+  remainingGuesses = 6; // or based on difficulty
+
+  wordDisplay.innerHTML = "";
+  word.split("").forEach((char) => {
+    const letterEl = document.createElement("div");
+    letterEl.classList.add("word-letter");
+    letterEl.dataset.letter = char.toUpperCase();
+    letterEl.textContent = chooser === socket.id ? char : "_";
+    wordDisplay.appendChild(letterEl);
+  });
+});
+
 socket.on("disconnect", (reason) => {
   console.warn(`Disconnected from server: ${reason}`);
   if (inRoom) {
     alert(
       "You were disconnected. The room may have closed if the creator left."
     );
-    inRoom = false
+    inRoom = false;
   }
 });
