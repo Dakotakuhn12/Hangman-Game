@@ -1,0 +1,26 @@
+{
+  // Editor
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+  // Files
+  "files.autoSave": "onFocusChange",
+  "files.exclude": {
+    "**/.git": true,
+    "**/node_modules": true
+  },
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+
+  // Search
+  "search.exclude": {
+    "**/node_modules": true
+  },
+
+  // Git
+  "git.enableSmartCommit": true,
+  "git.autofetch": true,
+
+  // Other
+  "explorer.compactFolders": false
+}
