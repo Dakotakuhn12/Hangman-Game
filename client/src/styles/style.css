@@ -57,7 +57,7 @@ h1 {
 
 .word-group {
   display: flex;
-  gap: 5px; /* spacing between letters in the same word */
+  gap: 10px;
 }
 
 .word-letter {

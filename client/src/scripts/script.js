@@ -81,23 +81,6 @@ document.addEventListener("DOMContentLoaded", () => {
     remainingGuesses = d.remainingGuesses;
     difficulty = d.difficulty;
 
-    for (let i = 0; i < selectedWord.length; i++) {
-      const letter = selectedWord[i];
-      const letterEl = document.createElement("div");
-
-      if (letter === " ") {
-        // Space between words
-        letterEl.classList.add("word-space");
-        letterEl.textContent = "";
-      } else {
-        letterEl.classList.add("word-letter");
-        letterEl.dataset.letter = letter.toUpperCase();
-        letterEl.textContent = "_";
-      }
-
-      wordDisplay.appendChild(letterEl);
-    }
-
     // Pick random word & category
     const categories = Object.keys(words);
     const randomCategory =
@@ -119,28 +102,38 @@ document.addEventListener("DOMContentLoaded", () => {
     // Display blanks for the word
     wordDisplay.innerHTML = "";
 
-    // Loop through each character in the selected word
-    for (let i = 0; i < selectedWord.length; i++) {
-      const char = selectedWord[i];
-      const letterEl = document.createElement("div");
-      letterEl.classList.add("word-letter");
-      letterEl.dataset.letter = char.toUpperCase();
+    const phrase = selectedWord.split(" ");
 
-      if (char === " ") {
-        // Keep spaces as empty placeholders
-        letterEl.classList.add("word-space");
-        letterEl.textContent = "";
-      } else if (/[A-Z]/i.test(char)) {
-        // Letters show as underscores
-        letterEl.textContent = "_";
-      } else {
-        // Non-letter characters (punctuation, numbers, etc.) are shown automatically
-        letterEl.textContent = char;
-        correctLetters.push(char.toUpperCase()); // treat as already guessed
+    phrase.forEach((word, index) => {
+      const wordContainer = document.createElement("div");
+      wordContainer.classList.add("word-group");
+
+      // Letters inside the word
+      for (let char of word) {
+        const letterEl = document.createElement("div");
+        letterEl.classList.add("word-letter");
+        letterEl.dataset.letter = char.toUpperCase();
+
+        if (/[A-Z]/i.test(char)) {
+          letterEl.textContent = "_";
+        } else {
+          letterEl.textContent = char;
+          correctLetters.push(char.toUpperCase());
+        }
+
+        wordContainer.appendChild(letterEl);
       }
 
-      wordDisplay.appendChild(letterEl);
-    }
+      // Add the word container
+      wordDisplay.appendChild(wordContainer);
+
+      // ADD BACK SPACES BETWEEN WORDS
+      if (index < phrase.length - 1) {
+        const spaceEl = document.createElement("div");
+        spaceEl.classList.add("word-space");
+        wordDisplay.appendChild(spaceEl);
+      }
+    });
 
     // Create keyboard
     keyboard.innerHTML = "";
