@@ -1,0 +1,33 @@
+name: Update MongoDB on data.js change
+
+# Trigger only when data.js is changed
+on:
+  push:
+    paths:
+      - 'client/src/scripts/data.js'
+  pull_request:
+    paths:
+      - 'client/src/scripts/data.js'
+
+jobs:
+  update-mongodb:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout code
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Step 4: Run the update script
+      - name: Update MongoDB
+        run: npm run update-mongodb
