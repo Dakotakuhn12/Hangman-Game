@@ -1,6 +1,6 @@
 import { words } from "./data.js";
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   // DOM Elements
   const difficulty_dropdown = document.getElementById("diffictuly_drop");
   const wordDisplay = document.getElementById("word-display");
@@ -29,9 +29,24 @@ document.addEventListener("DOMContentLoaded", () => {
   let gameOver = false;
   let difficulty;
 
+  async function chooseWordfromDB() {
+    try {
+      const response = await fetch("/api/words");
+      if (!response.ok) throw new Error("failed to fetch words");
+
+      const data = await response.json();
+
+      const randomIndex = Math.floor(Math.random() * data.length);
+      return data[randomIndex]
+    } catch (err) {
+      console.error("Error choosing word:", err);
+      return null;
+    }
+  }
+
   // Word lists (your massive lists including new categories)
   // Initialize Game
-  function initGame() {
+  async function initGame() {
     correctLetters = [];
     wrongLetters = [];
     gameOver = false;
@@ -41,11 +56,10 @@ document.addEventListener("DOMContentLoaded", () => {
     difficulty = d.difficulty;
 
     // Pick random word & category
-    const categories = Object.keys(words);
-    const randomCategory =
-      categories[Math.floor(Math.random() * categories.length)];
-    const wordList = words[randomCategory];
-    selectedWord = wordList[Math.floor(Math.random() * wordList.length)];
+    const data = await chooseWordfromDB()
+    console.log(data)
+    const randomCategory = data.category
+    selectedWord = data.name;
 
     // Update UI
     if (categoryContainer) {
