@@ -36,7 +36,8 @@ export const animal = [
   "praying mantis",
   "ptarmigan bird",
   "purple martin",
-  "crow"
+  "crow",
+  "grey wolf"
 ];
 
 export const food = [
