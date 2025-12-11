@@ -16,6 +16,7 @@ import {
   object,
   place,
   sport,
+  song_lyrics,
 } from "../../client/src/scripts/data.js";
 
 const uri = process.env.MONGODB_URI;
@@ -40,6 +41,7 @@ const lists = {
   object,
   place,
   sport,
+  song_lyrics,
 };
 
 async function uploadAll() {
@@ -58,9 +60,7 @@ async function uploadAll() {
       console.log(`Cleared old records in: ${collectionName}`);
 
       // Insert items
-      await collection.insertMany(
-        items.map((item) => ({ name: item }))
-      );
+      await collection.insertMany(items.map((item) => ({ name: item })));
 
       console.log(`Uploaded ${collectionName} list ✔`);
     }
