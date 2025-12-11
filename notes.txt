@@ -1,10 +1,11 @@
 // To Do List:
 
-// Have the difficulties appear ex. Easy Medium Hard Advanced
-// For each different difficulty have one less guess for each difficulty ex: Easy - 6, Medium - 5, Hard - 4, Advanced - 3
 // Have it to where it can be played with different games modes ex: quick play, private game, single player
 // Put in a room code instead of copying a link for the private game mode
 // for the quick play mode put in bots that play the game against you
 // style it a bunch as well
-// have it where there is spaces and dashes as well
-
+// fix when the player that joined the room wants to leave, make it so that their username doesn't say that it's still in the room.
+// fix it when you try to join a room using a different username it doesn't say the room code doesn't exist and so that the room is found.
+// fix so that the word when you create the room and choose the word it doesn't say select a word even though you already have one typed.
+// doesn't refresh the words.
+// in the dropdown not all the catergories show up even though the database is pdated.

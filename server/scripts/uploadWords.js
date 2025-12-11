@@ -17,6 +17,16 @@ import {
   place,
   sport,
   song_lyrics,
+  historyEvents,
+  christmas,
+  science,
+  drinks,
+  famous_people,
+  TV_shows,
+  countries,
+  easter,
+  new_years,
+  thanksgiving,
 } from "../../client/src/scripts/data.js";
 
 const uri = process.env.MONGODB_URI;
@@ -42,6 +52,16 @@ const lists = {
   place,
   sport,
   song_lyrics,
+  historyEvents,
+  christmas,
+  science,
+  drinks,
+  famous_people,
+  TV_shows,
+  countries,
+  easter,
+  new_years,
+  thanksgiving,
 };
 
 async function uploadAll() {
