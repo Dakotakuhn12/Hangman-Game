@@ -16,9 +16,61 @@
         height: 120px;
         overflow-y: scroll;
         margin-top: 10px;
+        background-color: #f9f9f9;
+        border-radius: 5px;
+      }
+      #room-log div {
+        padding: 2px 0;
+        border-bottom: 1px solid #eee;
+        font-size: 0.9em;
+      }
+      #room-log div:last-child {
+        border-bottom: none;
       }
       #room-controls {
         margin-bottom: 15px;
+        padding: 10px;
+        background: #f5f5f5;
+        border-radius: 5px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+      }
+      #room-controls label {
+        margin-right: 5px;
+      }
+      #room-controls input {
+        padding: 5px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+      #room-controls button {
+        padding: 5px 10px;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      #room-controls button:hover {
+        background: #3a56d4;
+      }
+      .chooser-letter {
+        color: #4a90e2;
+        font-weight: bold;
+      }
+      .player-list-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 5px;
+      }
+      .player-creator {
+        color: #ff9800;
+      }
+      .player-chooser {
+        color: #2196f3;
       }
     </style>
   </head>
@@ -28,10 +80,15 @@
 
       <!-- Room controls -->
       <div id="room-controls">
-        <label
-          >Username:
-          <input type="text" id="username" placeholder="Enter username"
-        /></label>
+        <label>
+          Username:
+          <input
+            type="text"
+            id="username"
+            placeholder="Enter username"
+            value="Player_1"
+          />
+        </label>
         <button id="create-room-btn">Create Room</button>
         <button id="join-room-btn">Join Room</button>
         <button id="leave-room-btn">Leave Room</button>
@@ -39,16 +96,26 @@
         <p>Room Code: <span id="room-code">None</span></p>
       </div>
 
+      <div id="room-log-container">
+        <h3>Room Activity</h3>
+        <div id="room-log"></div>
+      </div>
+
+      <div>
+        <h3>Players in Room:</h3>
+        <ul id="player-list"></ul>
+      </div>
+
       <div class="game-status">
-        <p id="remaining-guesses"></p>
-        <label for="diffictuly">Choose A difficulty</label>
-        <select id="diffictuly_drop" name="diffictuly">
+        <p id="remaining-guesses">Remaining guesses: 6</p>
+        <label for="difficulty">Choose A difficulty</label>
+        <select id="difficulty_drop" name="difficulty">
           <option value="easy">Easy</option>
-          <option value="Medium">Medium</option>
-          <option value="Hard">Hard</option>
-          <option value="Advanced">Advanced</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+          <option value="advanced">Advanced</option>
         </select>
-        <p id="category">Category:</p>
+        <p id="category">Category: General</p>
       </div>
 
       <div class="hangman-container">
@@ -198,7 +265,57 @@
         <i class="fas fa-redo"></i> New Game
       </button>
     </div>
+
+    <!-- Word Selection Modal -->
+    <div id="word-selection-modal" class="modal" style="display: none">
+      <div class="modal-content">
+        <h2>Choose a Word</h2>
+        <p>You are the word chooser! Select a word from the list below:</p>
+
+        <div class="search-container">
+          <input type="text" id="word-search" placeholder="Search words..." />
+          <select id="category-filter">
+            <option value="all">All Categories</option>
+            <option value="Animals">Animals</option>
+            <option value="Food">Food</option>
+            <option value="Movies">Movies</option>
+            <option value="Countries">Countries</option>
+            <option value="Science">Science</option>
+            <option value="Programming">Programming</option>
+            <option value="Sports">Sports</option>
+            <option value="Music">Music</option>
+            <option value="Geography">Geography</option>
+          </select>
+        </div>
+
+        <div id="words-container" class="words-grid">
+          <!-- Words will be loaded here -->
+        </div>
+
+        <div class="selected-word-info">
+          <p>Selected: <span id="selected-word-text">None</span></p>
+          <p>Category: <span id="selected-category-text">General</span></p>
+          <input
+            type="text"
+            id="custom-category"
+            placeholder="Or enter custom category"
+          />
+        </div>
+
+        <div class="modal-buttons">
+          <button id="submit-selected-word" class="submit-btn">
+            Submit Word
+          </button>
+          <button id="random-word" class="secondary-btn">Pick Random</button>
+          <button id="refresh-words" class="secondary-btn">
+            Refresh Words
+          </button>
+          <button id="cancel-word-selection" class="cancel-btn">Cancel</button>
+        </div>
+      </div>
+    </div>
+
     <script src="/socket.io/socket.io.js"></script>
-    <script type="module" src="../scripts/script copy.js"></script>
+    <script type="module" src="../scripts/scriptMultiplayer.js"></script>
   </body>
 </html>
