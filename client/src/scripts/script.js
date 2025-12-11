@@ -1,5 +1,3 @@
-import { words } from "./data.js";
-
 document.addEventListener("DOMContentLoaded", async () => {
   // DOM Elements
   const difficulty_dropdown = document.getElementById("diffictuly_drop");
@@ -37,7 +35,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const data = await response.json();
 
       const randomIndex = Math.floor(Math.random() * data.length);
-      return data[randomIndex]
+      return data[randomIndex];
     } catch (err) {
       console.error("Error choosing word:", err);
       return null;
@@ -56,9 +54,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     difficulty = d.difficulty;
 
     // Pick random word & category
-    const data = await chooseWordfromDB()
-    console.log(data)
-    const randomCategory = data.category
+    const data = await chooseWordfromDB();
+    console.log(data);
+    const randomCategory = data.category;
     selectedWord = data.name;
 
     // Update UI

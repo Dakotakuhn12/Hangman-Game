@@ -23,16 +23,6 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../client/index.html"));
 });
 
-// Route for hangman page
-app.get("/hangman", (req, res) => {
-  res.sendFile(path.join(__dirname, "../client/pages/hangman.html"));
-});
-
-// Route for test page
-app.get("/test", (req, res) => {
-  res.sendFile(path.join(__dirname, "../client/pages/test.html"));
-});
-
 setupRooms(io);
 
 app.use("/api", apiRoutes);

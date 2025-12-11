@@ -41,6 +41,8 @@ h1 {
   justify-content: space-between;
   margin-bottom: 20px;
   font-weight: 500;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .hangman-container {
@@ -61,8 +63,9 @@ h1 {
 }
 
 .word-letter {
-  width: 40px;
-  height: 40px;
+  width: 35px;
+  height: 35px;
+  font-size: 1.2rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -70,8 +73,8 @@ h1 {
 }
 
 .word-space {
-  width: 20px; /* adjust spacing as needed */
-  border-bottom: none; /* no underline for spaces */
+  width: 20px;
+  border-bottom: none;
 }
 
 .keyboard {
@@ -97,11 +100,11 @@ h1 {
   justify-content: center;
 }
 
-.keyboard-letter:hover:not(.used) {
-  background: #e0e0e0;
+.keyboard-letter:focus {
+  outline: 2px solid var(--primary);
 }
 
-.kayboard-letter.used {
+.keyboard-letter.used {
   cursor: not-allowed;
   opacity: 0.5;
 }
@@ -146,6 +149,146 @@ h1 {
   transform: translateY(-2px);
 }
 
+/* Modal Styles */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 800px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+}
+
+.words-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+  margin: 20px 0;
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.word-card {
+  padding: 15px 10px;
+  background: #f8f9fa;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s ease;
+  font-weight: 600;
+  font-size: 1.1em;
+}
+
+.word-card:hover {
+  background: #e9ecef;
+  border-color: #6c757d;
+}
+
+.word-card.selected {
+  background: #d1ecf1;
+  border-color: #0c5460;
+  color: #0c5460;
+  transform: scale(1.05);
+}
+
+.word-category {
+  display: block;
+  font-size: 0.8em;
+  color: #6c757d;
+  margin-top: 5px;
+  font-weight: normal;
+}
+
+.search-container {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.search-container input,
+.search-container select {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1em;
+}
+
+.selected-word-info {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 5px;
+  margin: 15px 0;
+  border-left: 4px solid #007bff;
+}
+
+#custom-category {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.submit-btn {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.submit-btn:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+}
+
+.secondary-btn {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.cancel-btn {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
 @media (max-width: 600px) {
   .keyboard-letter {
     width: 30px;
@@ -153,9 +296,26 @@ h1 {
     font-size: 1rem;
   }
 
-  .keyboard-letter {
-    width: 30px;
-    height: 30px;
-    font-size: 1.5rem;
+  .word-letter {
+    width: 25px;
+    height: 25px;
+    font-size: 1rem;
+  }
+
+  .game-status {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .modal-content {
+    padding: 1rem;
+  }
+
+  .modal-buttons {
+    flex-direction: column;
+  }
+
+  .modal-buttons button {
+    width: 100%;
   }
 }
