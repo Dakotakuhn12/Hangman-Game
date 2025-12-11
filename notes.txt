@@ -1,17 +1,21 @@
-// To Do List:
+To Do List:
 
-// Have it to where it can be played with different games modes ex: quick play, private game, single player
-// Put in a room code instead of copying a link for the private game mode
-// for the quick play mode put in bots that play the game against you
-// style it a bunch as well
-// fix when the player that joined the room wants to leave, make it so that their username doesn't say that it's still in the room.
-// fix it when you try to join a room using a different username it doesn't say the room code doesn't exist and so that the room is found.
-// fix so that the word when you create the room and choose the word it doesn't say select a word even though you already have one typed.
-// doesn't refresh the words.
-// in the dropdown not all the catergories show up even though the database is pdated.
-// in single player have it show the high score you have meaning for example if yo uwin and had one guess left and
-// then the second round you get 5 guesses left after winning add them up to calculate a high schore.
-// in multiplayer have it do the same thing essentially in single player except have it so that it accumulates an amount of points for each player with a leaderboard and have it so that it calculates the scores based off of how mnay guess and time you took to calculate the score also include a timer
-// after so long and if they don't guess in time they lose. But if they lose but got some letters still give them points for getting some of the words.
-// in quick play have it do the same thing in multiplayer just with bots playing you instead.
-// design the actual game site so that we could put coby's along with jace's game.
+Features:
+Have it to where it can be played with different games modes ex: quick play, private game, single player
+Put in a room code instead of copying a link for the private game mode
+for the quick play mode put in bots that play the game against you
+style it a bunch as well
+in single player have it show the high score you have meaning for example if yo uwin and had one guess left and
+then the second round you get 5 guesses left after winning add them up to calculate a high schore.
+in multiplayer have it do the same thing essentially in single player except have it so that it accumulates an amount of points for each player with a leaderboard and have it so that it calculates the scores based off of how mnay guess and time you took to calculate the score also include a timer
+after so long and if they don't guess in time they lose. But if they lose but got some letters still give them points for getting some of the words.
+in quick play have it do the same thing in multiplayer just with bots playing you instead.
+design the actual game site so that we could put coby's along with jace's game.
+
+
+Debugging:
+fix when the player that joined the room wants to leave, make it so that their username doesn't say that it's still in the room.
+fix it when you try to join a room using a different username it doesn't say the room code doesn't exist and so that the room is found.
+fix so that the word when you create the room and choose the word it doesn't say select a word even though you already have one typed.
+doesn't refresh the words.
+in the dropdown not all the catergories show up even though the database is updated.
