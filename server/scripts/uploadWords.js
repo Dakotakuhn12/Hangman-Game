@@ -27,6 +27,15 @@ import {
   easter,
   new_years,
   thanksgiving,
+  fourth_of_july,
+  Halloween,
+  Valentines_Day,
+  occupations,
+  brands,
+  brainrot,
+  cars,
+  states,
+  plants,
 } from "../../client/src/scripts/data.js";
 
 const uri = process.env.MONGODB_URI;
@@ -62,6 +71,15 @@ const lists = {
   easter,
   new_years,
   thanksgiving,
+  fourth_of_july,
+  Halloween,
+  Valentines_Day,
+  occupations,
+  brands,
+  brainrot,
+  cars,
+  states,
+  plants,
 };
 
 async function uploadAll() {
