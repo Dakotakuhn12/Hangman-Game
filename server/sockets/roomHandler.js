@@ -202,8 +202,11 @@ export function setupRooms(io) {
       if (!room) return;
 
       const player = room.players.find((p) => p.id === socket.id);
+      console.log(room.players);
       room.players = room.players.filter((p) => p.id !== socket.id);
+      console.log(room.players);
       socket.leave(roomCode);
+      console.log(room.players);
 
       if (socket.id === room.creator) {
         // Host leaves - assign new creator if there are other players
