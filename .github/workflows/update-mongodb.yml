@@ -4,10 +4,8 @@ name: Update MongoDB on data.js change
 on:
   push:
     paths:
-      - 'client/src/scripts/data.js'
-  pull_request:
-    paths:
-      - 'client/src/scripts/data.js'
+      - "client/src/scripts/data.js"
+  workflow_dispatch:
 
 jobs:
   update-mongodb:
@@ -16,13 +14,13 @@ jobs:
     steps:
       # Step 1: Checkout code
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Step 2: Setup Node.js
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: "18"
 
       # Step 3: Install dependencies
       - name: Install dependencies
@@ -31,3 +29,5 @@ jobs:
       # Step 4: Run the update script
       - name: Update MongoDB
         run: npm run update-mongodb
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}

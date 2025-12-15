@@ -13,10 +13,3 @@ in quick play have it do the same thing in multiplayer just with bots playing yo
 design the actual game site so that we could put coby's along with jace's game.
 
 
-Debugging:
-fix when the player that joined the room wants to leave, make it so that their username doesn't say that it's still in the room.
-fix it when you try to join a room using a different username it doesn't say the room code doesn't exist and so that the room is found.
-fix so that the word when you create the room and choose the word it doesn't say select a word even though you already have one typed.
-doesn't refresh the words.
-in the dropdown not all the catergories show up even though the database is updated.
-fix so that when there is letters in a different language have it so that if you type the letter it shows in the word have it so that you are not wrong.

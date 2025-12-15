@@ -1,7 +1,3 @@
-// uploadAll.js
-import dotenv from "dotenv";
-dotenv.config();
-
 import { MongoClient, ServerApiVersion } from "mongodb";
 
 // Import all your lists
@@ -45,13 +41,7 @@ import {
 
 const uri = process.env.MONGODB_URI;
 
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  },
-});
+const client = new MongoClient(uri);
 
 // Put all lists into a key/value object
 const lists = {
@@ -108,7 +98,7 @@ async function uploadAll() {
       console.log(`Cleared old records in: ${collectionName}`);
 
       // Insert items
-      await collection.insertMany(items.map((item) => ({ name: item })));
+      await collection.insertMany(items.map((item) => ({ word: item })));
 
       console.log(`Uploaded ${collectionName} list ✔`);
     }

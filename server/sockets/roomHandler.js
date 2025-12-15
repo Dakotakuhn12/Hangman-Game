@@ -109,11 +109,13 @@ export function setupRooms(io) {
       };
       room.remainingGuesses = difficultyMap[difficulty] || 6;
 
-      // Pick a word chooser randomly if not already set
-      if (!room.wordChooserId) {
-        const randomIndex = Math.floor(Math.random() * room.players.length);
-        room.wordChooserId = room.players[randomIndex].id;
-      }
+      // Pick a word chooser randomly
+      let chooser;
+      do {
+        chooser = room.players[Math.floor(Math.random() * room.players.length)];
+      } while (chooser.id === room.wordChooserId && room.players.length > 1);
+
+      room.wordChooserId = chooser.id;
 
       room.correctLetters = [];
       room.wrongLetters = [];
@@ -202,8 +204,11 @@ export function setupRooms(io) {
       if (!room) return;
 
       const player = room.players.find((p) => p.id === socket.id);
+      console.log(room.players);
       room.players = room.players.filter((p) => p.id !== socket.id);
+      console.log(room.players);
       socket.leave(roomCode);
+      console.log(room.players);
 
       if (socket.id === room.creator) {
         // Host leaves - assign new creator if there are other players
