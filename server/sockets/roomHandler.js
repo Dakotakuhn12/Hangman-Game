@@ -109,11 +109,13 @@ export function setupRooms(io) {
       };
       room.remainingGuesses = difficultyMap[difficulty] || 6;
 
-      // Pick a word chooser randomly if not already set
-      if (!room.wordChooserId) {
-        const randomIndex = Math.floor(Math.random() * room.players.length);
-        room.wordChooserId = room.players[randomIndex].id;
-      }
+      // Pick a word chooser randomly
+      let chooser;
+      do {
+        chooser = room.players[Math.floor(Math.random() * room.players.length)];
+      } while (chooser.id === room.wordChooserId && room.players.length > 1);
+
+      room.wordChooserId = chooser.id;
 
       room.correctLetters = [];
       room.wrongLetters = [];
