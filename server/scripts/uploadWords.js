@@ -98,7 +98,7 @@ async function uploadAll() {
       console.log(`Cleared old records in: ${collectionName}`);
 
       // Insert items
-      await collection.insertMany(items.map((item) => ({ name: item })));
+      await collection.insertMany(items.map((item) => ({ word: item })));
 
       console.log(`Uploaded ${collectionName} list ✔`);
     }
