@@ -5,6 +5,7 @@ on:
   push:
     paths:
       - "client/src/scripts/data.js"
+  workflow_dispatch:
 
 jobs:
   update-mongodb:
