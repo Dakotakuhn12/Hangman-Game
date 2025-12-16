@@ -37,6 +37,12 @@ import {
   rhymes,
   books,
   toys,
+  phrases,
+  mythology,
+  buildings,
+  furniture,
+  musical_instruments,
+  superheroes,
 } from "../../client/src/scripts/data.js";
 
 const uri = process.env.MONGODB_URI;
@@ -80,6 +86,12 @@ const lists = {
   rhymes,
   books,
   toys,
+  phrases,
+  mythology,
+  buildings,
+  furniture,
+  musical_instruments,
+  superheroes,
 };
 
 async function uploadAll() {
