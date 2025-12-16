@@ -89,24 +89,44 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const updateWordDisplay = () => {
     DOM.wordDisplay.innerHTML = "";
-    gameState.selectedWord.split("").forEach((char) => {
-      const letterEl = document.createElement("div");
-      letterEl.className = "word-letter";
-      letterEl.dataset.letter = char;
 
-      if (gameState.isChooser) {
-        letterEl.textContent = char;
-        letterEl.classList.add("chooser-letter");
-      } else if (/[^A-Z]/i.test(char)) {
-        letterEl.textContent = char;
-        if (!gameState.correctLetters.includes(char))
-          gameState.correctLetters.push(char);
-      } else {
-        letterEl.textContent = gameState.correctLetters.includes(char)
-          ? char
-          : "_";
+    // Split into words (preserve spaces by re-adding them as gaps)
+    const words = gameState.selectedWord.split(" ");
+
+    words.forEach((word, wordIndex) => {
+      const wordEl = document.createElement("div");
+      wordEl.className = "word-display";
+
+      word.split("").forEach((char) => {
+        const letterEl = document.createElement("div");
+        letterEl.className = "word-letter";
+        letterEl.dataset.letter = char;
+
+        if (gameState.isChooser) {
+          letterEl.textContent = char;
+          letterEl.classList.add("chooser-letter");
+        } else if (/[^A-Z]/i.test(char)) {
+          letterEl.textContent = char;
+          if (!gameState.correctLetters.includes(char)) {
+            gameState.correctLetters.push(char);
+          }
+        } else {
+          letterEl.textContent = gameState.correctLetters.includes(char)
+            ? char
+            : "_";
+        }
+
+        wordEl.appendChild(letterEl);
+      });
+
+      DOM.wordDisplay.appendChild(wordEl);
+
+      // Optional: spacing between words
+      if (wordIndex < words.length - 1) {
+        const spaceEl = document.createElement("div");
+        spaceEl.className = "word-space";
+        DOM.wordDisplay.appendChild(spaceEl);
       }
-      DOM.wordDisplay.appendChild(letterEl);
     });
   };
 
