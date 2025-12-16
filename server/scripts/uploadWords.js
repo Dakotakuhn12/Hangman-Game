@@ -28,10 +28,15 @@ import {
   Valentines_Day,
   occupations,
   brands,
-  brainrot,
   cars,
   states,
   plants,
+  technology,
+  colors,
+  opposites,
+  rhymes,
+  books,
+  toys,
 } from "../../client/src/scripts/data.js";
 
 const uri = process.env.MONGODB_URI;
@@ -66,10 +71,15 @@ const lists = {
   Valentines_Day,
   occupations,
   brands,
-  brainrot,
   cars,
   states,
   plants,
+  technology,
+  colors,
+  opposites,
+  rhymes,
+  books,
+  toys,
 };
 
 async function uploadAll() {
