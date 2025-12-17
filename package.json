@@ -6,6 +6,7 @@
   "homepage": "https://dakotakuhn12.github.io/Hangman-Game/",
   "scripts": {
     "dev": "nodemon server/server.js",
+    "start": "node server/server.js",
     "update-mongodb": "node ./server/scripts/uploadWords.js"
   },
   "keywords": [],
