@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const data = await chooseWordfromDB();
     console.log(data);
     const randomCategory = data.category;
-    selectedWord = data.name;
+    selectedWord = data.word;
 
     // Update UI
     if (categoryContainer) {
@@ -117,6 +117,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       keyEl.addEventListener("click", () => handleGuess(letter));
       keyboard.appendChild(keyEl);
     }
+
+    difficulty_dropdown.hidden = true;
   }
 
   // Handle guess
@@ -141,6 +143,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         gameOver = true;
         gameMessageEl.textContent = "Congrats! You Won!";
         gameMessageEl.style.color = "green";
+        difficulty_dropdown.hidden = false;
       }
     } else {
       wrongLetters.push(letter);
@@ -165,6 +168,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.querySelectorAll(".word-letter").forEach((el) => {
           el.textContent = el.dataset.letter;
         });
+        difficulty_dropdown.hidden = false;
       }
     }
   }
@@ -293,8 +297,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     remainingGuessesEl.textContent = `Remaining guesses: ${remainingGuesses}`;
   });
-
-  initGame();
 });
 
 function get_difficulty(difficulty_dropdown) {
@@ -306,10 +308,23 @@ function get_difficulty(difficulty_dropdown) {
   if (diff === "Medium") {
     return { difficulty: "Medium", remainingGuesses: 5 };
   }
+
   if (diff === "Hard") {
     return { difficulty: "Hard", remainingGuesses: 4 };
   }
   if (diff === "Advanced") {
     return { difficulty: "Advanced", remainingGuesses: 3 };
   }
+
+  // Score elements
+  const currentScoreEl = document.getElementById("current-score");
+  const highScoreEl = document.getElementById("high-score");
+  const timerEl = document.getElementById("timer");
+
+  let currentScore = 0;
+  let highScore = Number(localStorage.getItem("hangmanHighScore")) || 0;
+  let startTime;
+  let timerInterval;
+
+  highScoreEl.textContent = highScore;
 }
