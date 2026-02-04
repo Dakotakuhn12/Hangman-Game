@@ -1,4 +1,5 @@
 To Do List:
+Get the score, high score, and time to work
 
 Features:
 Have it to where it can be played with different games modes ex: quick play, private game, single player
