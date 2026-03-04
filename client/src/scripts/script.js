@@ -8,6 +8,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   const resetBtn = document.getElementById("reset-btn");
   const categoryContainer = document.getElementById("category");
 
+  // Score + Timer Elements
+  const currentScoreEl = document.getElementById("current-score");
+  const highScoreEl = document.getElementById("high-score");
+  const timerEl = document.getElementById("timer");
+
   // Hangman SVG Parts
   const hangmanParts = {
     head: document.getElementById("head"),
@@ -27,13 +32,20 @@ document.addEventListener("DOMContentLoaded", async () => {
   let gameOver = false;
   let difficulty;
 
+  // Score Variables
+  let currentScore = 0;
+  let highScore = Number(localStorage.getItem("hangmanHighScore")) || 0;
+  let startTime;
+  let timerInterval;
+
+  highScoreEl.textContent = highScore;
+  currentScoreEl.textContent = currentScore;
+
   async function chooseWordfromDB() {
     try {
       const response = await fetch("/api/words");
       if (!response.ok) throw new Error("failed to fetch words");
-
       const data = await response.json();
-
       const randomIndex = Math.floor(Math.random() * data.length);
       return data[randomIndex];
     } catch (err) {
@@ -42,44 +54,37 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  // Word lists (your massive lists including new categories)
-  // Initialize Game
   async function initGame() {
     correctLetters = [];
     wrongLetters = [];
     gameOver = false;
     gameMessageEl.textContent = "";
+
     const d = get_difficulty(difficulty_dropdown);
     remainingGuesses = d.remainingGuesses;
     difficulty = d.difficulty;
 
-    // Pick random word & category
     const data = await chooseWordfromDB();
-    console.log(data);
-    const randomCategory = data.category;
-    selectedWord = data.word;
+    if (!data) return;
 
-    // Update UI
-    if (categoryContainer) {
-      categoryContainer.textContent = "Category: " + randomCategory;
-    }
+    selectedWord = data.word;
+    console.log("Selected word:", selectedWord); // For debugging
+    categoryContainer.textContent = "Category: " + data.category;
     remainingGuessesEl.textContent = `Remaining guesses: ${remainingGuesses}`;
 
-    // Hide all hangman parts
+    // Hide hangman parts
     Object.values(hangmanParts).forEach(
-      (part) => (part.style.display = "none")
+      (part) => (part.style.display = "none"),
     );
 
-    // Display blanks for the word
+    // Build word display
     wordDisplay.innerHTML = "";
-
     const phrase = selectedWord.split(" ");
 
     phrase.forEach((word, index) => {
       const wordContainer = document.createElement("div");
       wordContainer.classList.add("word-group");
 
-      // Letters inside the word
       for (let char of word) {
         const letterEl = document.createElement("div");
         letterEl.classList.add("word-letter");
@@ -95,10 +100,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         wordContainer.appendChild(letterEl);
       }
 
-      // Add the word container
       wordDisplay.appendChild(wordContainer);
 
-      // ADD BACK SPACES BETWEEN WORDS
       if (index < phrase.length - 1) {
         const spaceEl = document.createElement("div");
         spaceEl.classList.add("word-space");
@@ -106,7 +109,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     });
 
-    // Create keyboard
+    // Build keyboard
     keyboard.innerHTML = "";
     for (let i = 65; i <= 90; i++) {
       const letter = String.fromCharCode(i);
@@ -118,10 +121,17 @@ document.addEventListener("DOMContentLoaded", async () => {
       keyboard.appendChild(keyEl);
     }
 
+    // Start timer
+    startTime = Date.now();
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      const seconds = Math.floor((Date.now() - startTime) / 1000);
+      timerEl.textContent = seconds;
+    }, 1000);
+
     difficulty_dropdown.hidden = true;
   }
 
-  // Handle guess
   function handleGuess(letter) {
     if (
       gameOver ||
@@ -133,16 +143,35 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (selectedWord.toUpperCase().includes(letter)) {
       correctLetters.push(letter);
       updateWordDisplay();
-      // Mark keyboard letter as correct
+
       const key = document.querySelector(
-        `.keyboard-letter[data-letter="${letter}"]`
+        `.keyboard-letter[data-letter="${letter}"]`,
       );
       if (key) key.classList.add("correct", "used");
 
       if (checkWin()) {
         gameOver = true;
-        gameMessageEl.textContent = "Congrats! You Won!";
+        clearInterval(timerInterval);
+
+        const timeTaken = (Date.now() - startTime) / 1000;
+        const timeBonus = Math.max(0, 150 - timeTaken * 8);
+        const difficultyBonus = remainingGuesses * 20;
+        const wordBonus = selectedWord.replace(/ /g, "").length * 10;
+
+        const roundPoints = Math.floor(timeBonus + difficultyBonus + wordBonus);
+
+        currentScore += roundPoints;
+        currentScoreEl.textContent = currentScore;
+
+        if (currentScore > highScore) {
+          highScore = currentScore;
+          localStorage.setItem("hangmanHighScore", highScore);
+          highScoreEl.textContent = highScore;
+        }
+
+        gameMessageEl.textContent = `You Won! +${roundPoints} points!`;
         gameMessageEl.style.color = "green";
+
         difficulty_dropdown.hidden = false;
       }
     } else {
@@ -150,9 +179,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       remainingGuesses--;
       remainingGuessesEl.textContent = `Remaining guesses: ${remainingGuesses}`;
 
-      // Mark keyboard letter as wrong
       const key = document.querySelector(
-        `.keyboard-letter[data-letter="${letter}"]`
+        `.keyboard-letter[data-letter="${letter}"]`,
       );
       if (key) key.classList.add("wrong", "used");
 
@@ -160,6 +188,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       if (remainingGuesses === 0) {
         gameOver = true;
+        clearInterval(timerInterval);
+
         gameMessageEl.textContent = `Game Over! The word was: ${selectedWord}`;
         gameMessageEl.style.color = "red";
 
@@ -168,12 +198,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.querySelectorAll(".word-letter").forEach((el) => {
           el.textContent = el.dataset.letter;
         });
+
+        // Reset score on full loss
+        currentScore = 0;
+        currentScoreEl.textContent = currentScore;
+
         difficulty_dropdown.hidden = false;
       }
     }
   }
 
-  // Update word display
   function updateWordDisplay() {
     document.querySelectorAll(".word-letter").forEach((el) => {
       const letter = el.dataset.letter;
@@ -183,7 +217,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  // Check win
   function checkWin() {
     return selectedWord
       .toUpperCase()
@@ -191,7 +224,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       .every((letter) => letter === " " || correctLetters.includes(letter));
   }
 
-  // Update hangman drawing
   function updateHangmanDrawing(difficulty) {
     if (difficulty === "Easy") {
       switch (wrongLetters.length) {
@@ -215,6 +247,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           break;
       }
     }
+
     if (difficulty === "Medium") {
       switch (wrongLetters.length) {
         case 1:
@@ -235,6 +268,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           break;
       }
     }
+
     if (difficulty === "Hard") {
       switch (wrongLetters.length) {
         case 1:
@@ -253,6 +287,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           break;
       }
     }
+
     if (difficulty === "Advanced") {
       switch (wrongLetters.length) {
         case 1:
@@ -271,30 +306,23 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  // Keyboard typing support
   document.addEventListener("keydown", (e) => {
-    const active = document.activeElement;
-
-    // If user is typing in an input or textarea, ignore key presses
-    if (active.tagName === "INPUT" || active.tagName === "TEXTAREA") {
-      return;
-    }
-
-    // Otherwise handle guess
     if (/^[a-z]$/i.test(e.key)) {
       handleGuess(e.key.toUpperCase());
     }
   });
 
-  // Reset button
   resetBtn.addEventListener("click", initGame);
 
-  // Start the game
   difficulty_dropdown.addEventListener("change", () => {
     const d = get_difficulty(difficulty_dropdown);
     remainingGuesses = d.remainingGuesses;
     difficulty = d.difficulty;
+    timerEl.textContent = 0;
+    currentScoreEl.textContent = 0;
 
+    highScoreEl.textContent =
+      localStorage.getItem("hangmanHighScore_" + d.difficulty) || 0; //note if this data is saved/loaded from local storage, this should be updated. //note if this data is saved/loaded from local storage, this should be updated.
     remainingGuessesEl.textContent = `Remaining guesses: ${remainingGuesses}`;
   });
 });
@@ -302,29 +330,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 function get_difficulty(difficulty_dropdown) {
   const diff = difficulty_dropdown.value;
 
-  if (diff === "easy") {
-    return { difficulty: "Easy", remainingGuesses: 6 };
-  }
-  if (diff === "Medium") {
-    return { difficulty: "Medium", remainingGuesses: 5 };
-  }
-
-  if (diff === "Hard") {
-    return { difficulty: "Hard", remainingGuesses: 4 };
-  }
-  if (diff === "Advanced") {
+  if (diff === "easy") return { difficulty: "Easy", remainingGuesses: 6 };
+  if (diff === "Medium") return { difficulty: "Medium", remainingGuesses: 5 };
+  if (diff === "Hard") return { difficulty: "Hard", remainingGuesses: 4 };
+  if (diff === "Advanced")
     return { difficulty: "Advanced", remainingGuesses: 3 };
-  }
 
-  // Score elements
-  const currentScoreEl = document.getElementById("current-score");
-  const highScoreEl = document.getElementById("high-score");
-  const timerEl = document.getElementById("timer");
-
-  let currentScore = 0;
-  let highScore = Number(localStorage.getItem("hangmanHighScore")) || 0;
-  let startTime;
-  let timerInterval;
-
-  highScoreEl.textContent = highScore;
+  return { difficulty: "Easy", remainingGuesses: 6 };
 }
