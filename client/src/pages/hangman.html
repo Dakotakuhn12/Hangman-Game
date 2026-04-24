@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -27,168 +27,209 @@
       <h1>Hangman Game</h1>
 
       <div class="game-status">
-        <div class="scoreboard">
-          <p>Score: <span id="current-score">0</span></p>
-          <p>High Score: <span id="high-score">0</span></p>
-          <p>Time: <span id="timer">0</span>s</p>
+        <div class="status-panel scoreboard-panel">
+          <div class="status-panel-header">
+            <h2>Game Stats</h2>
+          </div>
+          <div class="scoreboard">
+            <div class="score-item">
+              <span class="score-label">Score</span>
+              <span class="score-value" id="current-score">0</span>
+            </div>
+            <div class="score-item high-score">
+              <span class="score-label">High Score</span>
+              <span class="score-value" id="high-score">0</span>
+            </div>
+            <div class="score-item timer">
+              <span class="score-label">Time</span>
+              <span class="score-value"><span id="timer">0</span>s</span>
+            </div>
+          </div>
         </div>
-        <p id="remaining-guesses"></p>
-        <label for="diffictuly">Choose A difficulty</label>
-        <select id="diffictuly_drop" name="diffictuly">
-          <option value="easy">Easy</option>
-          <option value="Medium">Medium</option>
-          <option value="Hard">Hard</option>
-          <option value="Advanced">Advanced</option>
-        </select>
-        <p id="category">Category:</p>
+
+        <div class="status-panel game-info-panel">
+          <div class="status-panel-header">
+            <h2>Round Setup</h2>
+          </div>
+          <div class="game-info-grid">
+            <div class="info-card difficulty-card">
+              <div id="diffictuly-container">
+                <label for="diffictuly_drop">Choose A difficulty</label>
+                <select id="diffictuly_drop" name="diffictuly">
+                  <option value="Easy">Easy</option>
+                  <option value="Medium">Medium</option>
+                  <option value="Hard">Hard</option>
+                  <option value="Advanced">Advanced</option>
+                </select>
+                <p id="difficulty-display"></p>
+              </div>
+            </div>
+
+            <div class="info-card">
+              <span class="info-label">Remaining Guesses</span>
+              <p id="remaining-guesses"></p>
+            </div>
+
+            <div class="info-card">
+              <span class="info-label">Category</span>
+              <p id="category">Category:</p>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div class="hangman-container">
-        <svg id="hangman-svg" width="200" height="200" viewBox="0 0 200 200">
-          <!-- Gallows -->
-          <line
-            x1="20"
-            y1="180"
-            x2="100"
-            y2="180"
-            stroke="#333"
-            stroke-width="4"
-          />
-          <line
-            x1="60"
-            y1="180"
-            x2="60"
-            y2="20"
-            stroke="#333"
-            stroke-width="4"
-          />
-          <line
-            x1="60"
-            y1="20"
-            x2="140"
-            y2="20"
-            stroke="#333"
-            stroke-width="4"
-          />
-          <line
-            x1="140"
-            y1="20"
-            x2="140"
-            y2="40"
-            stroke="#333"
-            stroke-width="4"
-          />
-          <!-- Hangman parts -->
-          <circle
-            id="head"
-            cx="140"
-            cy="60"
-            r="20"
-            stroke="#333"
-            stroke-width="3"
-            fill="transparent"
-            style="display: none"
-          />
-          <line
-            id="body"
-            x1="140"
-            y1="80"
-            x2="140"
-            y2="130"
-            stroke="#333"
-            stroke-width="3"
-            style="display: none"
-          />
-          <line
-            id="left-arm"
-            x1="140"
-            y1="100"
-            x2="110"
-            y2="90"
-            stroke="#333"
-            stroke-width="3"
-            style="display: none"
-          />
-          <line
-            id="right-arm"
-            x1="140"
-            y1="100"
-            x2="170"
-            y2="90"
-            stroke="#333"
-            stroke-width="3"
-            style="display: none"
-          />
-          <line
-            id="left-leg"
-            x1="140"
-            y1="130"
-            x2="120"
-            y2="160"
-            stroke="#333"
-            stroke-width="3"
-            style="display: none"
-          />
-          <line
-            id="right-leg"
-            x1="140"
-            y1="130"
-            x2="160"
-            y2="160"
-            stroke="#333"
-            stroke-width="3"
-            style="display: none"
-          />
-          <g id="face" style="display: none">
-            <line
-              x1="130"
-              y1="55"
-              x2="135"
-              y2="60"
-              stroke="#333"
-              stroke-width="2"
-            />
-            <line
-              x1="135"
-              y1="55"
-              x2="130"
-              y2="60"
-              stroke="#333"
-              stroke-width="2"
-            />
-            <line
-              x1="145"
-              y1="55"
-              x2="150"
-              y2="60"
-              stroke="#333"
-              stroke-width="2"
-            />
-            <line
-              x1="150"
-              y1="55"
-              x2="145"
-              y2="60"
-              stroke="#333"
-              stroke-width="2"
-            />
-            <path
-              d="M130 70 Q140 80 150 70"
-              stroke="#333"
-              stroke-width="2"
-              fill="transparent"
-            />
-          </g>
-        </svg>
+      <div class="game-main">
+        <div class="play-area-card">
+          <div class="hangman-container">
+            <svg id="hangman-svg" width="200" height="200" viewBox="0 0 200 200">
+              <!-- Gallows -->
+              <line
+                x1="20"
+                y1="180"
+                x2="100"
+                y2="180"
+                stroke="#333"
+                stroke-width="4"
+              />
+              <line
+                x1="60"
+                y1="180"
+                x2="60"
+                y2="20"
+                stroke="#333"
+                stroke-width="4"
+              />
+              <line
+                x1="60"
+                y1="20"
+                x2="140"
+                y2="20"
+                stroke="#333"
+                stroke-width="4"
+              />
+              <line
+                x1="140"
+                y1="20"
+                x2="140"
+                y2="40"
+                stroke="#333"
+                stroke-width="4"
+              />
+              <!-- Hangman parts -->
+              <circle
+                id="head"
+                cx="140"
+                cy="60"
+                r="20"
+                stroke="#333"
+                stroke-width="3"
+                fill="transparent"
+                style="display: none"
+              />
+              <line
+                id="body"
+                x1="140"
+                y1="80"
+                x2="140"
+                y2="130"
+                stroke="#333"
+                stroke-width="3"
+                style="display: none"
+              />
+              <line
+                id="left-arm"
+                x1="140"
+                y1="100"
+                x2="110"
+                y2="90"
+                stroke="#333"
+                stroke-width="3"
+                style="display: none"
+              />
+              <line
+                id="right-arm"
+                x1="140"
+                y1="100"
+                x2="170"
+                y2="90"
+                stroke="#333"
+                stroke-width="3"
+                style="display: none"
+              />
+              <line
+                id="left-leg"
+                x1="140"
+                y1="130"
+                x2="120"
+                y2="160"
+                stroke="#333"
+                stroke-width="3"
+                style="display: none"
+              />
+              <line
+                id="right-leg"
+                x1="140"
+                y1="130"
+                x2="160"
+                y2="160"
+                stroke="#333"
+                stroke-width="3"
+                style="display: none"
+              />
+              <g id="face" style="display: none">
+                <line
+                  x1="130"
+                  y1="55"
+                  x2="135"
+                  y2="60"
+                  stroke="#333"
+                  stroke-width="2"
+                />
+                <line
+                  x1="135"
+                  y1="55"
+                  x2="130"
+                  y2="60"
+                  stroke="#333"
+                  stroke-width="2"
+                />
+                <line
+                  x1="145"
+                  y1="55"
+                  x2="150"
+                  y2="60"
+                  stroke="#333"
+                  stroke-width="2"
+                />
+                <line
+                  x1="150"
+                  y1="55"
+                  x2="145"
+                  y2="60"
+                  stroke="#333"
+                  stroke-width="2"
+                />
+                <path
+                  d="M130 70 Q140 80 150 70"
+                  stroke="#333"
+                  stroke-width="2"
+                  fill="transparent"
+                />
+              </g>
+            </svg>
+          </div>
+
+          <div class="word-display" id="word-display"></div>
+          <div class="keyboard" id="keyboard"></div>
+          <div class="game-message" id="game-message"></div>
+
+          <div class="game-actions">
+            <button id="reset-btn" class="reset-btn">
+              <i class="fas fa-redo"></i> New Game
+            </button>
+          </div>
+        </div>
       </div>
-
-      <div class="word-display" id="word-display"></div>
-      <div class="keyboard" id="keyboard"></div>
-      <div class="game-message" id="game-message"></div>
-
-      <button id="reset-btn" class="reset-btn">
-        <i class="fas fa-redo"></i> New Game
-      </button>
     </div>
     <script src="/socket.io/socket.io.js"></script>
     <script type="module" src="../scripts/script.js"></script>

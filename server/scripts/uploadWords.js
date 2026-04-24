@@ -1,4 +1,4 @@
-import { MongoClient, ServerApiVersion } from "mongodb";
+import { MongoClient } from "mongodb";
 
 // Import all your lists
 import {
@@ -46,10 +46,9 @@ import {
 } from "../../client/src/scripts/data.js";
 
 const uri = process.env.MONGODB_URI;
-
 const client = new MongoClient(uri);
 
-// Put all lists into a key/value object
+// Store lists in an object
 const lists = {
   animal,
   body,
@@ -101,23 +100,27 @@ async function uploadAll() {
 
     console.log("Connected to MongoDB ✔");
 
-    // Loop through every list and upload it
-    for (const [collectionName, items] of Object.entries(lists)) {
-      const collection = db.collection(collectionName);
+    for (const [category, items] of Object.entries(lists)) {
+      const collection = db.collection(category);
 
-      // Clear existing collection
+      // Clear old data
       await collection.deleteMany({});
-      console.log(`Cleared old records in: ${collectionName}`);
+      console.log(`Cleared ${category}`);
 
-      // Insert items
-      await collection.insertMany(items.map((item) => ({ word: item })));
+      // Insert words
+      const documents = items.map((word) => ({
+        word: word.toUpperCase(),
+        category: category,
+      }));
 
-      console.log(`Uploaded ${collectionName} list ✔`);
+      await collection.insertMany(documents);
+
+      console.log(`Uploaded ${documents.length} words to ${category} ✔`);
     }
 
-    console.log("🎉 All lists uploaded successfully!");
+    console.log("🎉 All word lists uploaded successfully!");
   } catch (err) {
-    console.error("❌ Error uploading:", err);
+    console.error("❌ Upload error:", err);
   } finally {
     await client.close();
     console.log("MongoDB connection closed");
