@@ -12,6 +12,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     "label[for='diffictuly_drop']",
   );
   const difficultyDisplay = document.getElementById("difficulty-display");
+  const themeToggle = document.getElementById("theme-toggle");
+  const themeToggleText = document.getElementById("theme-toggle-text");
+  const themeToggleIcon = themeToggle?.querySelector("i");
 
   const wordDisplay = document.getElementById("word-display");
   const keyboard = document.getElementById("keyboard");
@@ -68,6 +71,55 @@ document.addEventListener("DOMContentLoaded", async () => {
   highScoreEl.textContent = highScore;
   currentScoreEl.textContent = currentScore;
 
+  function applyTheme(theme) {
+    const root = document.documentElement;
+    const resolvedTheme = theme === "dark" ? "dark" : "light";
+
+    root.setAttribute("data-theme", resolvedTheme);
+
+    if (themeToggleText) {
+      themeToggleText.textContent =
+        resolvedTheme === "dark" ? "Light Mode" : "Dark Mode";
+    }
+
+    if (themeToggleIcon) {
+      themeToggleIcon.className =
+        resolvedTheme === "dark" ? "fas fa-sun" : "fas fa-moon";
+    }
+
+    if (themeToggle) {
+      themeToggle.setAttribute(
+        "aria-label",
+        resolvedTheme === "dark"
+          ? "Switch to light mode"
+          : "Switch to dark mode",
+      );
+    }
+  }
+
+  function initializeTheme() {
+    const savedTheme = localStorage.getItem("hangmanTheme");
+    const preferredTheme =
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
+
+    applyTheme(savedTheme || preferredTheme);
+  }
+
+  themeToggle?.addEventListener("click", () => {
+    const nextTheme =
+      document.documentElement.getAttribute("data-theme") === "dark"
+        ? "light"
+        : "dark";
+
+    localStorage.setItem("hangmanTheme", nextTheme);
+    applyTheme(nextTheme);
+  });
+
+  initializeTheme();
+
   function getHighScoreKey(selectedDifficulty) {
     return `hangmanHighScore_${selectedDifficulty}`;
   }
@@ -80,8 +132,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     // Force native select text to repaint consistently after being shown again.
-    difficulty_dropdown.style.color = "var(--dark)";
-    difficulty_dropdown.style.backgroundColor = "#fff";
+    difficulty_dropdown.style.color = "var(--select-text)";
+    difficulty_dropdown.style.backgroundColor = "var(--select-bg)";
     difficulty_dropdown.style.opacity = "1";
   }
 
