@@ -5,8 +5,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const DOM = {
     username: document.getElementById("username"),
     roomCode: document.getElementById("room-code"),
+    roomCodeDisplay: document.getElementById("room-code-display"),
+    playerCountDisplay: document.getElementById("player-count-display"),
     playerList: document.getElementById("player-list"),
     difficulty: document.getElementById("difficulty_drop"),
+    difficultyDisplay: document.getElementById("difficulty-display"),
     wordDisplay: document.getElementById("word-display"),
     keyboard: document.getElementById("keyboard"),
     remainingGuesses: document.getElementById("remaining-guesses"),
@@ -22,6 +25,8 @@ document.addEventListener("DOMContentLoaded", () => {
     customCategory: document.getElementById("custom-category"),
     submitWordBtn: document.getElementById("submit-selected-word"),
     wordSelectionModal: document.getElementById("word-selection-modal"),
+    themeToggle: document.getElementById("theme-toggle"),
+    themeToggleText: document.getElementById("theme-toggle-text"),
   };
 
   const hangmanParts = {
@@ -58,6 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let inRoom = false;
   const socket = io();
   const keyboardButtons = new Map();
+  const themeToggleIcon = DOM.themeToggle?.querySelector("i");
 
   // -----------------------------
   // Helper Functions
@@ -65,6 +71,67 @@ document.addEventListener("DOMContentLoaded", () => {
   const getDifficulty = () => {
     const mapping = { easy: 6, medium: 5, hard: 4, advanced: 3 };
     return mapping[DOM.difficulty.value.toLowerCase()] || 6;
+  };
+
+  const applyTheme = (theme) => {
+    const root = document.documentElement;
+    const resolvedTheme = theme === "dark" ? "dark" : "light";
+
+    root.setAttribute("data-theme", resolvedTheme);
+
+    if (DOM.themeToggleText) {
+      DOM.themeToggleText.textContent =
+        resolvedTheme === "dark" ? "Light Mode" : "Dark Mode";
+    }
+
+    if (themeToggleIcon) {
+      themeToggleIcon.className =
+        resolvedTheme === "dark" ? "fas fa-sun" : "fas fa-moon";
+    }
+  };
+
+  const initializeTheme = () => {
+    const savedTheme = localStorage.getItem("hangmanTheme");
+    const preferredTheme =
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
+
+    applyTheme(savedTheme || preferredTheme);
+  };
+
+  DOM.themeToggle?.addEventListener("click", () => {
+    const nextTheme =
+      document.documentElement.getAttribute("data-theme") === "dark"
+        ? "light"
+        : "dark";
+
+    localStorage.setItem("hangmanTheme", nextTheme);
+    applyTheme(nextTheme);
+  });
+
+  const updateDifficultyDisplay = () => {
+    if (!DOM.difficultyDisplay) return;
+
+    const value = DOM.difficulty.value;
+    DOM.difficultyDisplay.textContent =
+      `Difficulty: ${value.charAt(0).toUpperCase()}${value.slice(1)}`;
+  };
+
+  const syncHeaderStats = () => {
+    if (DOM.roomCodeDisplay) {
+      DOM.roomCodeDisplay.textContent =
+        DOM.roomCode.textContent && DOM.roomCode.textContent !== "None"
+          ? DOM.roomCode.textContent
+          : "Offline";
+    }
+
+    if (DOM.playerCountDisplay) {
+      DOM.playerCountDisplay.textContent = String(
+        DOM.playerList?.children.length || 0,
+      );
+    }
   };
 
   const showMessage = (msg, color = "var(--primary)") => {
@@ -181,6 +248,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     DOM.remainingGuesses.textContent = `Remaining guesses: ${gameState.remainingGuesses}`;
     DOM.category.textContent = `Category: ${category}`;
+    updateDifficultyDisplay();
     Object.values(hangmanParts).forEach((p) => (p.style.display = "none"));
 
     if (word) {
@@ -291,6 +359,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (p.id === creatorId) li.classList.add("player-creator");
       DOM.playerList.appendChild(li);
     });
+    syncHeaderStats();
   });
 
   socket.on("chooseWord", () => {
@@ -337,6 +406,7 @@ document.addEventListener("DOMContentLoaded", () => {
         DOM.roomCode.textContent = room;
         inRoom = true;
         addRoomLog(`Room created: ${room}`);
+        syncHeaderStats();
       });
     else {
       const code = prompt("Enter room code:")?.trim().toUpperCase();
@@ -345,7 +415,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (res.success)
           (DOM.roomCode.textContent = code),
             (inRoom = true),
-            addRoomLog(`Joined room: ${code}`);
+            addRoomLog(`Joined room: ${code}`),
+            syncHeaderStats();
         else
           alert(res.message), addRoomLog(`Failed to join room: ${res.message}`);
       });
@@ -392,6 +463,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Clear player list
       DOM.playerList.innerHTML = "";
+      syncHeaderStats();
 
       addRoomLog("Left the room.");
     });
@@ -475,6 +547,7 @@ document.addEventListener("DOMContentLoaded", () => {
       gameState.remainingGuesses = getDifficulty();
       DOM.remainingGuesses.textContent = `Remaining guesses: ${gameState.remainingGuesses}`;
     }
+    updateDifficultyDisplay();
   });
 
   document.addEventListener("keydown", (e) => {
@@ -488,5 +561,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initialize
   // -----------------------------
   initKeyboard();
+  initializeTheme();
+  updateDifficultyDisplay();
   DOM.remainingGuesses.textContent = `Remaining guesses: ${getDifficulty()}`;
+  syncHeaderStats();
 });

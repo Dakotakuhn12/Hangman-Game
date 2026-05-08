@@ -4,238 +4,230 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hangman VS Bots</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <link rel="stylesheet" href="../styles/style.css" />
   </head>
   <body>
-    <div class="scoreboard">
-      <div>Player: <span id="playerScore">0</span></div>
-      <div>Bot: <span id="botScore">0</span></div>
-    </div>
-
-    <div class="game-status">
-      <div>Mistakes: <span id="mistakes">0</span>/6</div>
-    </div>
-
-    <div class="word-display" id="wordDisplay"></div>
-
-    <div class="keyboard" id="keyboard"></div>
-
-    <div class="game-message" id="message"></div>
-
-    <button class="reset-btn" onclick="resetGame()">
-      <i class="fas fa-rotate-right">Restart</i>
-    </button>
-
-    <div class="game-status">
-      <div>
-        <p id="remaining-guesses">Remaining guesses: 6</p>
-        <label for="difficulty">Choose A difficulty</label>
-        <select id="difficulty_drop" name="difficulty">
-          <option value="easy">Easy</option>
-          <option value="medium">Medium</option>
-          <option value="hard">Hard</option>
-          <option value="advanced">Advanced</option>
-        </select>
-        <p id="category">Category: General</p>
+    <div class="game-container">
+      <div class="page-header">
+        <h1>Hangman VS Bots</h1>
+        <button
+          id="theme-toggle"
+          class="theme-toggle"
+          type="button"
+          aria-label="Toggle dark mode"
+        >
+          <i class="fas fa-moon"></i>
+          <span id="theme-toggle-text">Dark Mode</span>
+        </button>
       </div>
 
-      <div class="hangman-container">
-        <svg id="hangman-svg" width="200" height="200" viewBox="0 0 200 200">
-          <!-- Gallows -->
-          <line
-            x1="20"
-            y1="180"
-            x2="100"
-            y2="180"
-            stroke="#333"
-            stroke-width="4"
-          />
-          <line
-            x1="60"
-            y1="180"
-            x2="60"
-            y2="20"
-            stroke="#333"
-            stroke-width="4"
-          />
-          <line
-            x1="60"
-            y1="20"
-            x2="140"
-            y2="20"
-            stroke="#333"
-            stroke-width="4"
-          />
-          <line
-            x1="140"
-            y1="20"
-            x2="140"
-            y2="40"
-            stroke="#333"
-            stroke-width="4"
-          />
-          <!-- Hangman parts -->
-          <circle
-            id="head"
-            cx="140"
-            cy="60"
-            r="20"
-            stroke="#333"
-            stroke-width="3"
-            fill="transparent"
-            style="display: none"
-          />
-          <line
-            id="body"
-            x1="140"
-            y1="80"
-            x2="140"
-            y2="130"
-            stroke="#333"
-            stroke-width="3"
-            style="display: none"
-          />
-          <line
-            id="left-arm"
-            x1="140"
-            y1="100"
-            x2="110"
-            y2="90"
-            stroke="#333"
-            stroke-width="3"
-            style="display: none"
-          />
-          <line
-            id="right-arm"
-            x1="140"
-            y1="100"
-            x2="170"
-            y2="90"
-            stroke="#333"
-            stroke-width="3"
-            style="display: none"
-          />
-          <line
-            id="left-leg"
-            x1="140"
-            y1="130"
-            x2="120"
-            y2="160"
-            stroke="#333"
-            stroke-width="3"
-            style="display: none"
-          />
-          <line
-            id="right-leg"
-            x1="140"
-            y1="130"
-            x2="160"
-            y2="160"
-            stroke="#333"
-            stroke-width="3"
-            style="display: none"
-          />
-          <g id="face" style="display: none">
-            <line
-              x1="130"
-              y1="55"
-              x2="135"
-              y2="60"
-              stroke="#333"
-              stroke-width="2"
-            />
-            <line
-              x1="135"
-              y1="55"
-              x2="130"
-              y2="60"
-              stroke="#333"
-              stroke-width="2"
-            />
-            <line
-              x1="145"
-              y1="55"
-              x2="150"
-              y2="60"
-              stroke="#333"
-              stroke-width="2"
-            />
-            <line
-              x1="150"
-              y1="55"
-              x2="145"
-              y2="60"
-              stroke="#333"
-              stroke-width="2"
-            />
-            <path
-              d="M130 70 Q140 80 150 70"
-              stroke="#333"
-              stroke-width="2"
-              fill="transparent"
-            />
-          </g>
-        </svg>
+      <div class="game-status">
+        <div class="status-panel scoreboard-panel">
+          <div class="status-panel-header">
+            <h2>Match Stats</h2>
+          </div>
+          <div class="scoreboard">
+            <div class="score-item">
+              <span class="score-label">Player</span>
+              <span class="score-value" id="playerScore">0</span>
+            </div>
+            <div class="score-item high-score">
+              <span class="score-label">Bot</span>
+              <span class="score-value" id="botScore">0</span>
+            </div>
+            <div class="score-item timer">
+              <span class="score-label">Mistakes</span>
+              <span class="score-value" id="mistakes">0</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="status-panel game-info-panel">
+          <div class="status-panel-header">
+            <h2>Round Setup</h2>
+          </div>
+          <div class="game-info-grid">
+            <div class="info-card difficulty-card">
+              <div id="diffictuly-container">
+                <label for="diffictuly_drop">Choose A difficulty</label>
+                <select id="diffictuly_drop" name="diffictuly">
+                  <option value="easy">Easy</option>
+                  <option value="medium">Medium</option>
+                  <option value="hard">Hard</option>
+                  <option value="advanced">Advanced</option>
+                </select>
+                <p id="difficulty-display"></p>
+              </div>
+            </div>
+
+            <div class="info-card">
+              <span class="info-label">Remaining Guesses</span>
+              <p id="remaining-guesses">Remaining guesses: 6</p>
+            </div>
+
+            <div class="info-card">
+              <span class="info-label">Category</span>
+              <p id="category">Category: General</p>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div class="word-display" id="word-display"></div>
-      <div class="keyboard" id="keyboard"></div>
-      <div class="game-message" id="game-message"></div>
+      <div class="game-main">
+        <div class="play-area-card">
+          <div class="hangman-container">
+            <svg id="hangman-svg" width="200" height="200" viewBox="0 0 200 200">
+              <line
+                x1="20"
+                y1="180"
+                x2="100"
+                y2="180"
+                stroke="currentColor"
+                stroke-width="4"
+              />
+              <line
+                x1="60"
+                y1="180"
+                x2="60"
+                y2="20"
+                stroke="currentColor"
+                stroke-width="4"
+              />
+              <line
+                x1="60"
+                y1="20"
+                x2="140"
+                y2="20"
+                stroke="currentColor"
+                stroke-width="4"
+              />
+              <line
+                x1="140"
+                y1="20"
+                x2="140"
+                y2="40"
+                stroke="currentColor"
+                stroke-width="4"
+              />
+              <circle
+                id="head"
+                cx="140"
+                cy="60"
+                r="20"
+                stroke="currentColor"
+                stroke-width="3"
+                fill="transparent"
+                style="display: none"
+              />
+              <line
+                id="body"
+                x1="140"
+                y1="80"
+                x2="140"
+                y2="130"
+                stroke="currentColor"
+                stroke-width="3"
+                style="display: none"
+              />
+              <line
+                id="left-arm"
+                x1="140"
+                y1="100"
+                x2="110"
+                y2="90"
+                stroke="currentColor"
+                stroke-width="3"
+                style="display: none"
+              />
+              <line
+                id="right-arm"
+                x1="140"
+                y1="100"
+                x2="170"
+                y2="90"
+                stroke="currentColor"
+                stroke-width="3"
+                style="display: none"
+              />
+              <line
+                id="left-leg"
+                x1="140"
+                y1="130"
+                x2="120"
+                y2="160"
+                stroke="currentColor"
+                stroke-width="3"
+                style="display: none"
+              />
+              <line
+                id="right-leg"
+                x1="140"
+                y1="130"
+                x2="160"
+                y2="160"
+                stroke="currentColor"
+                stroke-width="3"
+                style="display: none"
+              />
+              <g id="face" style="display: none">
+                <line
+                  x1="130"
+                  y1="55"
+                  x2="135"
+                  y2="60"
+                  stroke="currentColor"
+                  stroke-width="2"
+                />
+                <line
+                  x1="135"
+                  y1="55"
+                  x2="130"
+                  y2="60"
+                  stroke="currentColor"
+                  stroke-width="2"
+                />
+                <line
+                  x1="145"
+                  y1="55"
+                  x2="150"
+                  y2="60"
+                  stroke="currentColor"
+                  stroke-width="2"
+                />
+                <line
+                  x1="150"
+                  y1="55"
+                  x2="145"
+                  y2="60"
+                  stroke="currentColor"
+                  stroke-width="2"
+                />
+                <path
+                  d="M130 70 Q140 80 150 70"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  fill="transparent"
+                />
+              </g>
+            </svg>
+          </div>
 
-      <button id="reset-btn" class="reset-btn">
-        <i class="fas fa-redo">New Game</i>
-      </button>
-    </div>
+          <div class="word-display" id="word-display"></div>
+          <div class="keyboard" id="keyboard"></div>
+          <div class="game-message" id="game-message"></div>
 
-    <!-- Word Selection Modal -->
-    <div id="word-selection-modal" class="modal" style="display: none">
-      <div class="modal-content">
-        <h2>Choose a Word</h2>
-        <p>You are the word chooser! Select a word from the list below:</p>
-
-        <div class="search-container">
-          <input type="text" id="word-search" placeholder="Search words..." />
-          <select id="category-filter">
-            <option value="all">All Categories</option>
-            <option value="Animals">Animals</option>
-            <option value="Food">Food</option>
-            <option value="Movies">Movies</option>
-            <option value="Countries">Countries</option>
-            <option value="Science">Science</option>
-            <option value="Programming">Programming</option>
-            <option value="Sports">Sports</option>
-            <option value="Music">Music</option>
-            <option value="Geography">Geography</option>
-          </select>
-        </div>
-
-        <div id="words-container" class="words-grid">
-          <!-- Words will be loaded here -->
-        </div>
-
-        <div class="selected-word-info">
-          <p>Selected: <span id="selected-word-text">None</span></p>
-          <p>Category: <span id="selected-category-text">General</span></p>
-          <input
-            type="text"
-            id="custom-category"
-            placeholder="Or enter custom category"
-          />
-        </div>
-
-        <div class="modal-buttons">
-          <button id="submit-selected-word" class="submit-btn">
-            Submit Word
-          </button>
-          <button id="random-word" class="secondary-btn">Pick Random</button>
-          <button id="refresh-words" class="secondary-btn">
-            Refresh Words
-          </button>
-          <button id="cancel-word-selection" class="cancel-btn">Cancel</button>
+          <div class="game-actions">
+            <button id="reset-btn" class="reset-btn">
+              <i class="fas fa-redo"></i> New Game
+            </button>
+          </div>
         </div>
       </div>
     </div>
-
-    <script src="script.js"></script>
+    <script type="module" src="../scripts/scriptQuickPlay.js"></script>
   </body>
 </html>

@@ -1,272 +1,291 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Hangman</title>
+    <title>Hangman Multiplayer</title>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
     <link rel="stylesheet" href="../styles/style.css" />
-    <style>
-      #room-log {
-        border: 1px solid #ccc;
-        padding: 10px;
-        height: 120px;
-        overflow-y: scroll;
-        margin-top: 10px;
-        background-color: #f9f9f9;
-        border-radius: 5px;
-      }
-      #room-log div {
-        padding: 2px 0;
-        border-bottom: 1px solid #eee;
-        font-size: 0.9em;
-      }
-      #room-log div:last-child {
-        border-bottom: none;
-      }
-      #room-controls {
-        margin-bottom: 15px;
-        padding: 10px;
-        background: #f5f5f5;
-        border-radius: 5px;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        align-items: center;
-      }
-      #room-controls label {
-        margin-right: 5px;
-      }
-      #room-controls input {
-        padding: 5px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-      }
-      #room-controls button {
-        padding: 5px 10px;
-        background: var(--primary);
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-      }
-      #room-controls button:hover {
-        background: #3a56d4;
-      }
-      .chooser-letter {
-        color: #4a90e2;
-        font-weight: bold;
-      }
-      .player-list-item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 5px;
-      }
-      .player-creator {
-        color: #ff9800;
-      }
-      .player-chooser {
-        color: #2196f3;
-      }
-    </style>
   </head>
   <body>
     <div class="game-container">
-      <h1>Hangman Game</h1>
-
-      <!-- Room controls -->
-      <div id="room-controls">
-        <label>
-          Username:
-          <input
-            type="text"
-            id="username"
-            placeholder="Enter username"
-            value="Player_1"
-          />
-        </label>
-        <button id="create-room-btn">Create Room</button>
-        <button id="join-room-btn">Join Room</button>
-        <button id="leave-room-btn">Leave Room</button>
-        <button id="start-game-btn">Start Game</button>
-        <p>Room Code: <span id="room-code">None</span></p>
+      <div class="page-header">
+        <h1>Hangman Multiplayer</h1>
+        <button
+          id="theme-toggle"
+          class="theme-toggle"
+          type="button"
+          aria-label="Toggle dark mode"
+        >
+          <i class="fas fa-moon"></i>
+          <span id="theme-toggle-text">Dark Mode</span>
+        </button>
       </div>
 
-      <div id="room-log-container">
-        <h3>Room Activity</h3>
-        <div id="room-log"></div>
+      <div class="mode-layout">
+        <div class="mode-extras">
+          <section class="mode-panel">
+            <h2>Room Controls</h2>
+            <div class="room-controls-grid">
+              <div class="field-stack">
+                <label for="username">Username</label>
+                <input
+                  type="text"
+                  id="username"
+                  placeholder="Enter username"
+                  value="Player_1"
+                />
+              </div>
+
+              <div class="field-stack">
+                <label>Room Code</label>
+                <p class="status-text">Code: <span id="room-code">None</span></p>
+              </div>
+            </div>
+
+            <div class="button-row">
+              <button id="create-room-btn" class="reset-btn" type="button">
+                Create Room
+              </button>
+              <button
+                id="join-room-btn"
+                class="reset-btn secondary-btn-inline"
+                type="button"
+              >
+                Join Room
+              </button>
+              <button
+                id="leave-room-btn"
+                class="reset-btn secondary-btn-inline"
+                type="button"
+              >
+                Leave Room
+              </button>
+              <button id="start-game-btn" class="reset-btn" type="button">
+                Start Game
+              </button>
+            </div>
+          </section>
+
+          <section class="mode-panel">
+            <h2>Room Activity</h2>
+            <div id="room-log" class="room-log"></div>
+          </section>
+
+          <section class="mode-panel">
+            <h2>Players In Room</h2>
+            <ul id="player-list" class="player-list"></ul>
+          </section>
+        </div>
+
+        <div class="game-status">
+          <div class="status-panel scoreboard-panel">
+            <div class="status-panel-header">
+              <h2>Multiplayer Status</h2>
+            </div>
+            <div class="scoreboard">
+              <div class="score-item">
+                <span class="score-label">Room</span>
+                <span class="score-value" id="room-code-display">Live</span>
+              </div>
+              <div class="score-item high-score">
+                <span class="score-label">Players</span>
+                <span class="score-value" id="player-count-display">0</span>
+              </div>
+              <div class="score-item timer">
+                <span class="score-label">Mode</span>
+                <span class="score-value">VS</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="status-panel game-info-panel">
+            <div class="status-panel-header">
+              <h2>Round Setup</h2>
+            </div>
+            <div class="game-info-grid">
+              <div class="info-card difficulty-card">
+                <div id="diffictuly-container">
+                  <label for="difficulty_drop">Choose A difficulty</label>
+                  <select id="difficulty_drop" name="difficulty">
+                    <option value="easy">Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                    <option value="advanced">Advanced</option>
+                  </select>
+                  <p id="difficulty-display"></p>
+                </div>
+              </div>
+
+              <div class="info-card">
+                <span class="info-label">Remaining Guesses</span>
+                <p id="remaining-guesses">Remaining guesses: 6</p>
+              </div>
+
+              <div class="info-card">
+                <span class="info-label">Category</span>
+                <p id="category">Category: General</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="game-main">
+          <div class="play-area-card">
+            <div class="hangman-container">
+              <svg id="hangman-svg" width="200" height="200" viewBox="0 0 200 200">
+                <line
+                  x1="20"
+                  y1="180"
+                  x2="100"
+                  y2="180"
+                  stroke="currentColor"
+                  stroke-width="4"
+                />
+                <line
+                  x1="60"
+                  y1="180"
+                  x2="60"
+                  y2="20"
+                  stroke="currentColor"
+                  stroke-width="4"
+                />
+                <line
+                  x1="60"
+                  y1="20"
+                  x2="140"
+                  y2="20"
+                  stroke="currentColor"
+                  stroke-width="4"
+                />
+                <line
+                  x1="140"
+                  y1="20"
+                  x2="140"
+                  y2="40"
+                  stroke="currentColor"
+                  stroke-width="4"
+                />
+                <circle
+                  id="head"
+                  cx="140"
+                  cy="60"
+                  r="20"
+                  stroke="currentColor"
+                  stroke-width="3"
+                  fill="transparent"
+                  style="display: none"
+                />
+                <line
+                  id="body"
+                  x1="140"
+                  y1="80"
+                  x2="140"
+                  y2="130"
+                  stroke="currentColor"
+                  stroke-width="3"
+                  style="display: none"
+                />
+                <line
+                  id="left-arm"
+                  x1="140"
+                  y1="100"
+                  x2="110"
+                  y2="90"
+                  stroke="currentColor"
+                  stroke-width="3"
+                  style="display: none"
+                />
+                <line
+                  id="right-arm"
+                  x1="140"
+                  y1="100"
+                  x2="170"
+                  y2="90"
+                  stroke="currentColor"
+                  stroke-width="3"
+                  style="display: none"
+                />
+                <line
+                  id="left-leg"
+                  x1="140"
+                  y1="130"
+                  x2="120"
+                  y2="160"
+                  stroke="currentColor"
+                  stroke-width="3"
+                  style="display: none"
+                />
+                <line
+                  id="right-leg"
+                  x1="140"
+                  y1="130"
+                  x2="160"
+                  y2="160"
+                  stroke="currentColor"
+                  stroke-width="3"
+                  style="display: none"
+                />
+                <g id="face" style="display: none">
+                  <line
+                    x1="130"
+                    y1="55"
+                    x2="135"
+                    y2="60"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
+                  <line
+                    x1="135"
+                    y1="55"
+                    x2="130"
+                    y2="60"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
+                  <line
+                    x1="145"
+                    y1="55"
+                    x2="150"
+                    y2="60"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
+                  <line
+                    x1="150"
+                    y1="55"
+                    x2="145"
+                    y2="60"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
+                  <path
+                    d="M130 70 Q140 80 150 70"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    fill="transparent"
+                  />
+                </g>
+              </svg>
+            </div>
+
+            <div class="word-display" id="word-display"></div>
+            <div class="keyboard" id="keyboard"></div>
+            <div class="game-message" id="game-message"></div>
+
+            <div class="game-actions">
+              <button id="reset-btn" class="reset-btn">
+                <i class="fas fa-redo"></i> New Game
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
-
-      <div>
-        <h3>Players in Room:</h3>
-        <ul id="player-list"></ul>
-      </div>
-
-      <div class="game-status">
-        <p id="remaining-guesses">Remaining guesses: 6</p>
-        <label for="difficulty">Choose A difficulty</label>
-        <select id="difficulty_drop" name="difficulty">
-          <option value="easy">Easy</option>
-          <option value="medium">Medium</option>
-          <option value="hard">Hard</option>
-          <option value="advanced">Advanced</option>
-        </select>
-        <p id="category">Category: General</p>
-      </div>
-
-      <div class="hangman-container">
-        <svg id="hangman-svg" width="200" height="200" viewBox="0 0 200 200">
-          <!-- Gallows -->
-          <line
-            x1="20"
-            y1="180"
-            x2="100"
-            y2="180"
-            stroke="#333"
-            stroke-width="4"
-          />
-          <line
-            x1="60"
-            y1="180"
-            x2="60"
-            y2="20"
-            stroke="#333"
-            stroke-width="4"
-          />
-          <line
-            x1="60"
-            y1="20"
-            x2="140"
-            y2="20"
-            stroke="#333"
-            stroke-width="4"
-          />
-          <line
-            x1="140"
-            y1="20"
-            x2="140"
-            y2="40"
-            stroke="#333"
-            stroke-width="4"
-          />
-          <!-- Hangman parts -->
-          <circle
-            id="head"
-            cx="140"
-            cy="60"
-            r="20"
-            stroke="#333"
-            stroke-width="3"
-            fill="transparent"
-            style="display: none"
-          />
-          <line
-            id="body"
-            x1="140"
-            y1="80"
-            x2="140"
-            y2="130"
-            stroke="#333"
-            stroke-width="3"
-            style="display: none"
-          />
-          <line
-            id="left-arm"
-            x1="140"
-            y1="100"
-            x2="110"
-            y2="90"
-            stroke="#333"
-            stroke-width="3"
-            style="display: none"
-          />
-          <line
-            id="right-arm"
-            x1="140"
-            y1="100"
-            x2="170"
-            y2="90"
-            stroke="#333"
-            stroke-width="3"
-            style="display: none"
-          />
-          <line
-            id="left-leg"
-            x1="140"
-            y1="130"
-            x2="120"
-            y2="160"
-            stroke="#333"
-            stroke-width="3"
-            style="display: none"
-          />
-          <line
-            id="right-leg"
-            x1="140"
-            y1="130"
-            x2="160"
-            y2="160"
-            stroke="#333"
-            stroke-width="3"
-            style="display: none"
-          />
-          <g id="face" style="display: none">
-            <line
-              x1="130"
-              y1="55"
-              x2="135"
-              y2="60"
-              stroke="#333"
-              stroke-width="2"
-            />
-            <line
-              x1="135"
-              y1="55"
-              x2="130"
-              y2="60"
-              stroke="#333"
-              stroke-width="2"
-            />
-            <line
-              x1="145"
-              y1="55"
-              x2="150"
-              y2="60"
-              stroke="#333"
-              stroke-width="2"
-            />
-            <line
-              x1="150"
-              y1="55"
-              x2="145"
-              y2="60"
-              stroke="#333"
-              stroke-width="2"
-            />
-            <path
-              d="M130 70 Q140 80 150 70"
-              stroke="#333"
-              stroke-width="2"
-              fill="transparent"
-            />
-          </g>
-        </svg>
-      </div>
-
-      <div class="word-display" id="word-display"></div>
-      <div class="keyboard" id="keyboard"></div>
-      <div class="game-message" id="game-message"></div>
-
-      <button id="reset-btn" class="reset-btn">
-        <i class="fas fa-redo"></i> New Game
-      </button>
     </div>
 
-    <!-- Word Selection Modal -->
     <div id="word-selection-modal" class="modal" style="display: none">
       <div class="modal-content">
         <h2>Choose a Word</h2>
@@ -288,9 +307,7 @@
           </select>
         </div>
 
-        <div id="words-container" class="words-grid">
-          <!-- Words will be loaded here -->
-        </div>
+        <div id="words-container" class="words-grid"></div>
 
         <div class="selected-word-info">
           <p>Selected: <span id="selected-word-text">None</span></p>
@@ -307,9 +324,7 @@
             Submit Word
           </button>
           <button id="random-word" class="secondary-btn">Pick Random</button>
-          <button id="refresh-words" class="secondary-btn">
-            Refresh Words
-          </button>
+          <button id="refresh-words" class="secondary-btn">Refresh Words</button>
           <button id="cancel-word-selection" class="cancel-btn">Cancel</button>
         </div>
       </div>

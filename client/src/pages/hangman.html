@@ -76,6 +76,20 @@
               </div>
             </div>
 
+            <div class="info-card difficulty-card">
+              <div id="player-name-container">
+                <label for="player-name">Player Name</label>
+                <input
+                  id="player-name"
+                  name="player-name"
+                  type="text"
+                  maxlength="20"
+                  placeholder="Enter your name"
+                  autocomplete="nickname"
+                />
+              </div>
+            </div>
+
             <div class="info-card">
               <span class="info-label">Remaining Guesses</span>
               <p id="remaining-guesses"></p>
@@ -86,6 +100,18 @@
               <p id="category">Category:</p>
             </div>
           </div>
+        </div>
+
+        <div class="status-panel leaderboard-panel">
+          <div class="status-panel-header">
+            <h2>Leaderboard</h2>
+          </div>
+          <p id="leaderboard-subtitle" class="leaderboard-subtitle">
+            Top scores for Easy
+          </p>
+          <ol id="leaderboard-list" class="leaderboard-list">
+            <li class="leaderboard-empty">No scores yet.</li>
+          </ol>
         </div>
       </div>
 

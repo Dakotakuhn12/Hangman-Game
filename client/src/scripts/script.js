@@ -12,6 +12,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     "label[for='diffictuly_drop']",
   );
   const difficultyDisplay = document.getElementById("difficulty-display");
+  const playerNameInput = document.getElementById("player-name");
   const themeToggle = document.getElementById("theme-toggle");
   const themeToggleText = document.getElementById("theme-toggle-text");
   const themeToggleIcon = themeToggle?.querySelector("i");
@@ -26,6 +27,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   const currentScoreEl = document.getElementById("current-score");
   const highScoreEl = document.getElementById("high-score");
   const timerEl = document.getElementById("timer");
+  const leaderboardSubtitle = document.getElementById("leaderboard-subtitle");
+  const leaderboardList = document.getElementById("leaderboard-list");
 
   // ============================================================
   // HANGMAN BODY PARTS
@@ -119,9 +122,138 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   initializeTheme();
+  renderLeaderboard(get_difficulty(difficulty_dropdown).difficulty);
 
   function getHighScoreKey(selectedDifficulty) {
     return `hangmanHighScore_${selectedDifficulty}`;
+  }
+
+  function getPlayerNameKey() {
+    return "hangmanPlayerName";
+  }
+
+  function getPlayerName() {
+    return playerNameInput?.value.trim() || "";
+  }
+
+  function normalizePlayerName(playerName) {
+    return playerName.trim().toLocaleLowerCase();
+  }
+
+  function persistPlayerName() {
+    const playerName = getPlayerName();
+
+    if (playerName) {
+      localStorage.setItem(getPlayerNameKey(), playerName);
+    }
+  }
+
+  function initializePlayerName() {
+    if (!playerNameInput) return;
+
+    const savedName = localStorage.getItem(getPlayerNameKey()) || "";
+    playerNameInput.value = savedName;
+
+    playerNameInput.addEventListener("change", persistPlayerName);
+    playerNameInput.addEventListener("blur", persistPlayerName);
+  }
+
+  function getLeaderboardKey(selectedDifficulty) {
+    return `hangmanLeaderboard_${selectedDifficulty}`;
+  }
+
+  function getLeaderboardEntries(selectedDifficulty) {
+    try {
+      const raw = localStorage.getItem(getLeaderboardKey(selectedDifficulty));
+      const parsed = raw ? JSON.parse(raw) : [];
+      if (!Array.isArray(parsed)) return [];
+
+      return parsed
+        .sort((a, b) => b.score - a.score || b.timestamp - a.timestamp)
+        .slice(0, 5);
+    } catch (error) {
+      console.error("Failed to load leaderboard:", error);
+      return [];
+    }
+  }
+
+  function formatLeaderboardDate(timestamp) {
+    return new Date(timestamp).toLocaleString([], {
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    });
+  }
+
+  function renderLeaderboard(selectedDifficulty) {
+    if (!leaderboardList || !leaderboardSubtitle) return;
+
+    leaderboardSubtitle.textContent = `Top scores for ${selectedDifficulty}`;
+    const entries = getLeaderboardEntries(selectedDifficulty).slice(0, 5);
+
+    leaderboardList.innerHTML = "";
+
+    if (!entries.length) {
+      const emptyState = document.createElement("li");
+      emptyState.className = "leaderboard-empty";
+      emptyState.textContent = "No scores yet.";
+      leaderboardList.appendChild(emptyState);
+      return;
+    }
+
+    entries.forEach((entry, index) => {
+      const item = document.createElement("li");
+      item.className = "leaderboard-entry";
+      item.innerHTML = `
+        <span class="leaderboard-rank">#${index + 1}</span>
+        <span class="leaderboard-meta">
+          <span class="leaderboard-word">${entry.playerName || "Anonymous"} - ${entry.word}</span>
+          <span class="leaderboard-date">${formatLeaderboardDate(entry.timestamp)}</span>
+        </span>
+        <span class="leaderboard-score">${entry.score}</span>
+      `;
+      leaderboardList.appendChild(item);
+    });
+  }
+
+  function saveLeaderboardEntry(selectedDifficulty, score, word, playerName) {
+    if (!selectedDifficulty || score <= 0 || !playerName) return;
+
+    const entries = getLeaderboardEntries(selectedDifficulty);
+    const normalizedPlayerName = normalizePlayerName(playerName);
+    const existingEntry = entries.find(
+      (entry) => normalizePlayerName(entry.playerName || "") === normalizedPlayerName,
+    );
+
+    if (existingEntry) {
+      if (score <= existingEntry.score) {
+        renderLeaderboard(selectedDifficulty);
+        return;
+      }
+
+      existingEntry.playerName = playerName;
+      existingEntry.score = score;
+      existingEntry.word = word;
+      existingEntry.timestamp = Date.now();
+    } else {
+      entries.push({
+        playerName,
+        score,
+        word,
+        timestamp: Date.now(),
+      });
+    }
+
+    entries.sort((a, b) => b.score - a.score || b.timestamp - a.timestamp);
+    const topEntries = entries.slice(0, 5);
+
+    localStorage.setItem(
+      getLeaderboardKey(selectedDifficulty),
+      JSON.stringify(topEntries),
+    );
+
+    renderLeaderboard(selectedDifficulty);
   }
 
   function syncDifficultyDropdown(selectedDifficulty) {
@@ -137,10 +269,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     difficulty_dropdown.style.opacity = "1";
   }
 
+  initializePlayerName();
+
   function loadHighScore(selectedDifficulty) {
     highScore =
       Number(localStorage.getItem(getHighScoreKey(selectedDifficulty))) || 0;
     highScoreEl.textContent = highScore;
+    renderLeaderboard(selectedDifficulty);
   }
 
   function resetCurrentScore() {
@@ -202,6 +337,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   // ============================================================
 
   async function initGame() {
+    const playerName = getPlayerName();
+
+    if (!playerName) {
+      gameMessageEl.textContent = "Enter your name before starting a new game.";
+      gameMessageEl.style.color = "red";
+      playerNameInput?.focus();
+      return;
+    }
+
+    persistPlayerName();
     correctLetters = [];
     wrongLetters = [];
     gameOver = false;
@@ -341,13 +486,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       if (key) key.classList.add("correct", "used");
 
-      if (checkWin()) {
-        gameOver = true;
+        if (checkWin()) {
+          gameOver = true;
 
-        stopTimer();
-        const roundPoints = awardWinPoints();
+          stopTimer();
+          const roundPoints = awardWinPoints();
 
-        gameMessageEl.textContent = `You Won! +${roundPoints} points!`;
+          gameMessageEl.textContent = `You Won! +${roundPoints} points!`;
 
         gameMessageEl.style.color = "green";
 
@@ -408,6 +553,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function endGame(message) {
     gameOver = true;
+    const finalScore = currentScore;
 
     stopTimer();
 
@@ -417,6 +563,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     hangmanParts.face.style.display = "block";
 
     revealWord();
+    saveLeaderboardEntry(difficulty, finalScore, selectedWord, getPlayerName());
     resetCurrentScore();
 
     syncDifficultyDropdown(difficulty);
@@ -473,6 +620,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   // ============================================================
 
   document.addEventListener("keydown", (e) => {
+    const activeElement = document.activeElement;
+
+    if (
+      activeElement &&
+      (activeElement.tagName === "INPUT" ||
+        activeElement.tagName === "TEXTAREA" ||
+        activeElement.tagName === "SELECT")
+    ) {
+      return;
+    }
+
     if (/^[a-z]$/i.test(e.key)) {
       handleGuess(e.key.toUpperCase());
     }

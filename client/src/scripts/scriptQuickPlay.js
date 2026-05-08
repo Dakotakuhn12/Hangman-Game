@@ -2,12 +2,16 @@
 document.addEventListener("DOMContentLoaded", async () => {
   // ===== DOM Elements =====
   const difficultyDropdown = document.getElementById("diffictuly_drop");
+  const difficultyDisplay = document.getElementById("difficulty-display");
   const wordDisplay = document.getElementById("word-display");
   const keyboard = document.getElementById("keyboard");
   const remainingGuessesEl = document.getElementById("remaining-guesses");
   const gameMessageEl = document.getElementById("game-message");
   const resetBtn = document.getElementById("reset-btn");
   const categoryContainer = document.getElementById("category");
+  const themeToggle = document.getElementById("theme-toggle");
+  const themeToggleText = document.getElementById("theme-toggle-text");
+  const themeToggleIcon = themeToggle?.querySelector("i");
 
   // ===== Hangman SVG Parts =====
   const hangmanParts = {
@@ -28,6 +32,46 @@ document.addEventListener("DOMContentLoaded", async () => {
   let gameOver = false;
   let difficulty;
   let botInterval;
+
+  function applyTheme(theme) {
+    const root = document.documentElement;
+    const resolvedTheme = theme === "dark" ? "dark" : "light";
+
+    root.setAttribute("data-theme", resolvedTheme);
+
+    if (themeToggleText) {
+      themeToggleText.textContent =
+        resolvedTheme === "dark" ? "Light Mode" : "Dark Mode";
+    }
+
+    if (themeToggleIcon) {
+      themeToggleIcon.className =
+        resolvedTheme === "dark" ? "fas fa-sun" : "fas fa-moon";
+    }
+  }
+
+  function initializeTheme() {
+    const savedTheme = localStorage.getItem("hangmanTheme");
+    const preferredTheme =
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
+
+    applyTheme(savedTheme || preferredTheme);
+  }
+
+  themeToggle?.addEventListener("click", () => {
+    const nextTheme =
+      document.documentElement.getAttribute("data-theme") === "dark"
+        ? "light"
+        : "dark";
+
+    localStorage.setItem("hangmanTheme", nextTheme);
+    applyTheme(nextTheme);
+  });
+
+  initializeTheme();
 
   // ===== Fetch a random word from DB =====
   async function chooseWordFromDB() {
@@ -54,6 +98,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const d = getDifficulty(difficultyDropdown);
     remainingGuesses = d.remainingGuesses;
     difficulty = d.difficulty;
+    if (difficultyDisplay)
+      difficultyDisplay.textContent = `Difficulty: ${difficulty}`;
 
     // Get word from DB
     const data = await chooseWordFromDB();
@@ -273,9 +319,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   function getDifficulty(dropdown) {
     const diff = dropdown.value;
     if (diff === "easy") return { difficulty: "Easy", remainingGuesses: 6 };
-    if (diff === "Medium") return { difficulty: "Medium", remainingGuesses: 5 };
-    if (diff === "Hard") return { difficulty: "Hard", remainingGuesses: 4 };
-    if (diff === "Advanced")
+    if (diff === "medium") return { difficulty: "Medium", remainingGuesses: 5 };
+    if (diff === "hard") return { difficulty: "Hard", remainingGuesses: 4 };
+    if (diff === "advanced")
       return { difficulty: "Advanced", remainingGuesses: 3 };
   }
 
@@ -294,6 +340,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const d = getDifficulty(difficultyDropdown);
     remainingGuesses = d.remainingGuesses;
     difficulty = d.difficulty;
+    if (difficultyDisplay)
+      difficultyDisplay.textContent = `Difficulty: ${difficulty}`;
     remainingGuessesEl.textContent = `Remaining guesses: ${remainingGuesses}`;
   });
 
