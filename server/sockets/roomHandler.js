@@ -1,7 +1,52 @@
 import { generateRoomCode } from "../utils/utils.js";
+import { connectDB, getDb } from "../utils/db.js";
 
 export function setupRooms(io) {
-  const rooms = {}; // roomCode -> { creator, players: [{id, username}], wordChooserId, word, category, correctLetters, wrongLetters, remainingGuesses, gameOver }
+  const rooms = {};
+  let cachedWords = null;
+  let lastFetchTime = 0;
+  const CACHE_DURATION = 5 * 60 * 1000;
+  const MULTIPLAYER_TIME_LIMIT = 90;
+
+  function clearRoomTimer(room) {
+    if (room?.roundTimer) {
+      clearInterval(room.roundTimer);
+      room.roundTimer = null;
+    }
+  }
+
+  async function getRandomWord() {
+    const now = Date.now();
+
+    if (!cachedWords || now - lastFetchTime >= CACHE_DURATION) {
+      await connectDB();
+      const db = getDb("words");
+      const collectionsInfo = await db.listCollections().toArray();
+      const collectionNames = collectionsInfo.map((collection) => collection.name);
+
+      let allWords = [];
+
+      for (const name of collectionNames) {
+        const collection = db.collection(name);
+        const docs = await collection.find({}).toArray();
+        const wordsWithCategory = docs.map((doc) => ({
+          ...doc,
+          category: name,
+        }));
+
+        allWords.push(...wordsWithCategory);
+      }
+
+      cachedWords = allWords;
+      lastFetchTime = now;
+    }
+
+    if (!cachedWords?.length) {
+      throw new Error("No words available for multiplayer");
+    }
+
+    return cachedWords[Math.floor(Math.random() * cachedWords.length)];
+  }
 
   io.on("connection", (socket) => {
     console.log("A user connected:", socket.id);
@@ -21,9 +66,35 @@ export function setupRooms(io) {
         correctLetters: room.correctLetters,
         wrongLetters: room.wrongLetters,
         remainingGuesses: room.remainingGuesses,
+        remainingTime: room.remainingTime,
         gameOver: room.gameOver,
         selectedWord: room.word,
+        roundEndReason: room.roundEndReason,
+        firstSolverName: room.firstSolverName,
       });
+    }
+
+    function endRound(roomCode, reason, firstSolverName = "") {
+      const room = rooms[roomCode];
+      if (!room || room.gameOver) return;
+
+      room.gameOver = true;
+      room.roundEndReason = reason;
+      room.firstSolverName = firstSolverName;
+      clearRoomTimer(room);
+
+      if (reason === "solved") {
+        io.to(roomCode).emit(
+          "logMessage",
+          `Round complete! ${firstSolverName || "A player"} solved it first.`,
+        );
+      } else if (reason === "timer") {
+        io.to(roomCode).emit("logMessage", "Time ran out! Round over.");
+      } else if (reason === "guesses") {
+        io.to(roomCode).emit("logMessage", "No guesses left! Round over.");
+      }
+
+      broadcastGameState(roomCode);
     }
 
     socket.on("createRoom", (username, callback) => {
@@ -35,13 +106,16 @@ export function setupRooms(io) {
       rooms[roomCode] = {
         creator: socket.id,
         players: [{ id: socket.id, username }],
-        wordChooserId: null,
         word: null,
         category: "General",
         correctLetters: [],
         wrongLetters: [],
         remainingGuesses: 6,
+        remainingTime: MULTIPLAYER_TIME_LIMIT,
         gameOver: false,
+        roundEndReason: null,
+        firstSolverName: "",
+        roundTimer: null,
       };
       socket.join(roomCode);
 
@@ -54,10 +128,7 @@ export function setupRooms(io) {
     socket.on("joinRoom", (roomCode, username, callback) => {
       const room = rooms[roomCode];
       if (room) {
-        // Check if username already exists in room
-        const usernameExists = room.players.some(
-          (p) => p.username === username
-        );
+        const usernameExists = room.players.some((p) => p.username === username);
         if (usernameExists) {
           callback({
             success: false,
@@ -74,7 +145,6 @@ export function setupRooms(io) {
         callback({ success: true });
         updateRoomPlayers(roomCode);
 
-        // Send current game state to new player if game is in progress
         if (room.word) {
           socket.emit("gameStarted", {
             word: room.word,
@@ -90,17 +160,15 @@ export function setupRooms(io) {
       }
     });
 
-    socket.on("startGame", (roomCode, difficulty = "easy") => {
+    socket.on("startGame", async (roomCode, difficulty = "easy") => {
       const room = rooms[roomCode];
       if (!room) return;
 
-      // Only creator can start the game
       if (socket.id !== room.creator) {
         socket.emit("logMessage", "Only the room creator can start the game!");
         return;
       }
 
-      // Convert difficulty to guesses
       const difficultyMap = {
         easy: 6,
         medium: 5,
@@ -108,70 +176,74 @@ export function setupRooms(io) {
         advanced: 3,
       };
       room.remainingGuesses = difficultyMap[difficulty] || 6;
+      room.remainingTime = MULTIPLAYER_TIME_LIMIT;
 
-      // Pick a word chooser randomly
-      let chooser;
-      do {
-        chooser = room.players[Math.floor(Math.random() * room.players.length)];
-      } while (chooser.id === room.wordChooserId && room.players.length > 1);
-
-      room.wordChooserId = chooser.id;
-
+      clearRoomTimer(room);
       room.correctLetters = [];
       room.wrongLetters = [];
       room.gameOver = false;
-      room.word = null;
       room.category = "General";
+      room.roundEndReason = null;
+      room.firstSolverName = "";
 
-      io.to(roomCode).emit(
-        "logMessage",
-        `Game started! Difficulty: ${difficulty}`
-      );
+      try {
+        const randomWord = await getRandomWord();
+        room.word = randomWord.word.toUpperCase();
+        room.category = randomWord.category || "General";
 
-      room.players.forEach((player) => {
-        if (player.id === room.wordChooserId) {
-          io.to(player.id).emit("chooseWord");
-        } else {
-          io.to(player.id).emit("waitForWord");
-        }
-      });
+        io.to(roomCode).emit(
+          "logMessage",
+          `Game started! Difficulty: ${difficulty} | Category: ${room.category}`,
+        );
+        io.to(roomCode).emit("gameStarted", {
+          word: room.word,
+          category: room.category,
+        });
+
+        broadcastGameState(roomCode);
+
+        room.roundTimer = setInterval(() => {
+          if (!rooms[roomCode] || room.gameOver) {
+            clearRoomTimer(room);
+            return;
+          }
+
+          room.remainingTime--;
+
+          if (room.remainingTime <= 0) {
+            room.remainingTime = 0;
+            endRound(roomCode, "timer", room.firstSolverName);
+            return;
+          }
+
+          broadcastGameState(roomCode);
+        }, 1000);
+      } catch (error) {
+        console.error("Failed to start multiplayer game:", error);
+        socket.emit(
+          "logMessage",
+          "Unable to start multiplayer game because no words were available.",
+        );
+      }
     });
 
-    socket.on("submitWord", (roomCode, word, category = "General") => {
-      const room = rooms[roomCode];
-      if (!room || socket.id !== room.wordChooserId) return;
-
-      room.word = word.toUpperCase();
-      room.category = category;
-      room.correctLetters = [];
-      room.wrongLetters = [];
-      room.gameOver = false;
-
-      io.to(roomCode).emit(
-        "logMessage",
-        `Word submitted! Category: ${category}`
-      );
-      io.to(roomCode).emit("gameStarted", {
-        word: word,
-        category,
-      });
-
-      broadcastGameState(roomCode);
-    });
-
-    // Handle guesses from players
     socket.on("playerGuess", (roomCode, letter) => {
       const room = rooms[roomCode];
-      if (!room || room.gameOver || socket.id === room.wordChooserId) return;
+      if (!room || room.gameOver || !room.word) return;
+      const player = room.players.find((p) => p.id === socket.id);
 
       letter = letter.toUpperCase();
       if (
         room.correctLetters.includes(letter) ||
         room.wrongLetters.includes(letter)
-      )
+      ) {
         return;
+      }
 
-      io.to(roomCode).emit("logMessage", `${socket.id} guessed: ${letter}`);
+      io.to(roomCode).emit(
+        "logMessage",
+        `${player?.username || socket.id} guessed: ${letter}`,
+      );
 
       if (room.word.includes(letter)) {
         room.correctLetters.push(letter);
@@ -180,20 +252,18 @@ export function setupRooms(io) {
         room.remainingGuesses--;
       }
 
-      // Check for win/loss
       const allLettersGuessed = room.word
         .split("")
-        .every((c) => /[^A-Z]/i.test(c) || room.correctLetters.includes(c));
+        .every((char) => /[^A-Z]/i.test(char) || room.correctLetters.includes(char));
+
       if (allLettersGuessed) {
-        room.gameOver = true;
-        io.to(roomCode).emit(
-          "logMessage",
-          "🎉 All letters guessed! Players win!"
-        );
+        endRound(roomCode, "solved", player?.username || "Unknown");
+        return;
       }
+
       if (room.remainingGuesses <= 0) {
-        room.gameOver = true;
-        io.to(roomCode).emit("logMessage", "💀 No guesses left! Players lose!");
+        endRound(roomCode, "guesses", room.firstSolverName);
+        return;
       }
 
       broadcastGameState(roomCode);
@@ -204,31 +274,27 @@ export function setupRooms(io) {
       if (!room) return;
 
       const player = room.players.find((p) => p.id === socket.id);
-      console.log(room.players);
       room.players = room.players.filter((p) => p.id !== socket.id);
-      console.log(room.players);
       socket.leave(roomCode);
-      console.log(room.players);
 
       if (socket.id === room.creator) {
-        // Host leaves - assign new creator if there are other players
         if (room.players.length > 0) {
           room.creator = room.players[0].id;
           io.to(roomCode).emit(
             "logMessage",
             `${player?.username || "Host"} left. ${
               room.players[0].username
-            } is now the host.`
+            } is now the host.`,
           );
         } else {
-          // Close the room
+          clearRoomTimer(room);
           io.to(roomCode).emit("logMessage", "Room closed!");
           delete rooms[roomCode];
         }
       } else {
         io.to(roomCode).emit(
           "logMessage",
-          `${player?.username || "A player"} left the room`
+          `${player?.username || "A player"} left the room`,
         );
       }
 
@@ -243,8 +309,11 @@ export function setupRooms(io) {
           correctLetters: room.correctLetters,
           wrongLetters: room.wrongLetters,
           remainingGuesses: room.remainingGuesses,
+          remainingTime: room.remainingTime,
           gameOver: room.gameOver,
           selectedWord: room.word,
+          roundEndReason: room.roundEndReason,
+          firstSolverName: room.firstSolverName,
         });
       }
     });
@@ -256,37 +325,25 @@ export function setupRooms(io) {
         if (!player) continue;
 
         if (socket.id === room.creator) {
-          // Host disconnects - assign new creator
           room.players = room.players.filter((p) => p.id !== socket.id);
           if (room.players.length > 0) {
             room.creator = room.players[0].id;
             io.to(roomCode).emit(
               "logMessage",
-              `${player.username} (host) disconnected. ${room.players[0].username} is now the host.`
+              `${player.username} (host) disconnected. ${room.players[0].username} is now the host.`,
             );
             updateRoomPlayers(roomCode);
           } else {
-            // Room is empty, delete it
+            clearRoomTimer(room);
             delete rooms[roomCode];
           }
         } else {
           room.players = room.players.filter((p) => p.id !== socket.id);
           io.to(roomCode).emit(
             "logMessage",
-            `${player.username} has disconnected.`
+            `${player.username} has disconnected.`,
           );
           updateRoomPlayers(roomCode);
-        }
-
-        // If word chooser leaves, assign new one if game is active
-        if (socket.id === room.wordChooserId && room.word) {
-          if (room.players.length > 0) {
-            room.wordChooserId = room.players[0].id;
-            io.to(room.wordChooserId).emit(
-              "logMessage",
-              "You are now the word chooser for the next round."
-            );
-          }
         }
       }
     });

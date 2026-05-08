@@ -7,7 +7,9 @@ document.addEventListener("DOMContentLoaded", () => {
     roomCode: document.getElementById("room-code"),
     roomCodeDisplay: document.getElementById("room-code-display"),
     playerCountDisplay: document.getElementById("player-count-display"),
+    multiplayerTimerDisplay: document.getElementById("multiplayer-timer-display"),
     playerList: document.getElementById("player-list"),
+    multiplayerScoreDisplay: document.getElementById("multiplayer-score-display"),
     difficulty: document.getElementById("difficulty_drop"),
     difficultyDisplay: document.getElementById("difficulty-display"),
     leaderboardSubtitle: document.getElementById("leaderboard-subtitle"),
@@ -50,9 +52,12 @@ document.addEventListener("DOMContentLoaded", () => {
     correctLetters: [],
     wrongLetters: [],
     remainingGuesses: 0,
+    remainingTime: 90,
     gameOver: false,
-    isChooser: false,
     category: "General",
+    currentScore: 0,
+    roundEndReason: null,
+    firstSolverName: "",
   };
 
   const wordSelectionState = {
@@ -67,6 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const keyboardButtons = new Map();
   const themeToggleIcon = DOM.themeToggle?.querySelector("i");
   let leaderboardSavedForRound = false;
+  const MULTIPLAYER_TIME_LIMIT = 90;
 
   // -----------------------------
   // Helper Functions
@@ -189,9 +195,24 @@ document.addEventListener("DOMContentLoaded", () => {
       hard: 100,
       advanced: 140,
     };
+    const timeBonus = Math.max(0, gameState.remainingTime || 0) * 4;
     const remainingBonus = Math.max(gameState.remainingGuesses, 0) * 25;
     const wordBonus = (gameState.selectedWord || "").replace(/ /g, "").length * 10;
-    return difficultyBonusMap[difficultyValue] + remainingBonus + wordBonus;
+    return (
+      difficultyBonusMap[difficultyValue] + timeBonus + remainingBonus + wordBonus
+    );
+  };
+
+  const updateScoreDisplay = () => {
+    if (DOM.multiplayerScoreDisplay) {
+      DOM.multiplayerScoreDisplay.textContent = String(gameState.currentScore || 0);
+    }
+  };
+
+  const updateTimerDisplay = () => {
+    if (DOM.multiplayerTimerDisplay) {
+      DOM.multiplayerTimerDisplay.textContent = `${Math.max(gameState.remainingTime || 0, 0)}s`;
+    }
   };
 
   const applyTheme = (theme) => {
@@ -288,10 +309,7 @@ document.addEventListener("DOMContentLoaded", () => {
         letterEl.className = "word-letter";
         letterEl.dataset.letter = char;
 
-        if (gameState.isChooser) {
-          letterEl.textContent = char;
-          letterEl.classList.add("chooser-letter");
-        } else if (/[^A-Z]/i.test(char)) {
+        if (/[^A-Z]/i.test(char)) {
           letterEl.textContent = char;
           if (!gameState.correctLetters.includes(char)) {
             gameState.correctLetters.push(char);
@@ -333,7 +351,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .every((c) => /[^A-Z]/i.test(c) || gameState.correctLetters.includes(c));
 
   const handleGuess = (letter) => {
-    if (gameState.gameOver || gameState.isChooser) return;
+    if (gameState.gameOver) return;
     if (
       gameState.correctLetters.includes(letter) ||
       gameState.wrongLetters.includes(letter)
@@ -360,16 +378,22 @@ document.addEventListener("DOMContentLoaded", () => {
   const resetGame = (word = "", category = "General") => {
     gameState.selectedWord = word.toUpperCase();
     gameState.category = category;
-    gameState.correctLetters = gameState.isChooser ? word.split("") : [];
+    gameState.correctLetters = [];
     gameState.wrongLetters = [];
     gameState.remainingGuesses = getDifficulty();
+    gameState.remainingTime = MULTIPLAYER_TIME_LIMIT;
     gameState.gameOver = false;
     leaderboardSavedForRound = false;
+    gameState.currentScore = 0;
+    gameState.roundEndReason = null;
+    gameState.firstSolverName = "";
 
     DOM.remainingGuesses.textContent = `Remaining guesses: ${gameState.remainingGuesses}`;
     DOM.category.textContent = `Category: ${category}`;
     updateDifficultyDisplay();
     renderLeaderboard(getDifficultyLabel());
+    updateScoreDisplay();
+    updateTimerDisplay();
     Object.values(hangmanParts).forEach((p) => (p.style.display = "none"));
 
     if (word) {
@@ -483,30 +507,28 @@ document.addEventListener("DOMContentLoaded", () => {
     syncHeaderStats();
   });
 
-  socket.on("chooseWord", () => {
-    gameState.isChooser = true;
-    showWordSelectionModal();
-    addRoomLog("You are the word chooser!");
-  });
-
-  socket.on("waitForWord", () => {
-    gameState.isChooser = false;
-    showMessage("Waiting for host to choose a word...");
-  });
-
   socket.on("gameStarted", ({ word, category }) => resetGame(word, category));
 
   socket.on("updateGameState", (state) => {
     Object.assign(gameState, state);
     DOM.remainingGuesses.textContent = `Remaining guesses: ${gameState.remainingGuesses}`;
+    updateTimerDisplay();
     updateHangman();
     updateWordDisplay();
     updateKeyboard();
 
     if (gameState.gameOver) {
       if (checkWin()) {
-        showMessage("🎉 Congrats! You Won!", "green"),
-          addRoomLog("Players won!");
+        gameState.currentScore = calculateRoundScore();
+        updateScoreDisplay();
+        const firstSolverText = gameState.firstSolverName
+          ? `${gameState.firstSolverName} finished it first.`
+          : "The room solved it.";
+        showMessage(
+          `Round complete! ${firstSolverText} Final score: ${gameState.currentScore}`,
+          "green",
+        );
+        addRoomLog(`Players won! ${firstSolverText}`);
         if (!leaderboardSavedForRound) {
           saveLeaderboardEntry(
             getDifficultyLabel(),
@@ -517,9 +539,21 @@ document.addEventListener("DOMContentLoaded", () => {
           leaderboardSavedForRound = true;
         }
       } else {
-        showMessage(`💀 Game Over! Word was: ${gameState.selectedWord}`, "red"),
-          addRoomLog("Players lost!"),
-          (hangmanParts.face.style.display = "block");
+        gameState.currentScore = 0;
+        updateScoreDisplay();
+        const reasonText =
+          gameState.roundEndReason === "timer"
+            ? "Time ran out."
+            : "No guesses left.";
+        const firstSolverText = gameState.firstSolverName
+          ? ` ${gameState.firstSolverName} was first to complete it.`
+          : "";
+        showMessage(
+          `${reasonText} Word was: ${gameState.selectedWord}. Final score: 0.${firstSolverText}`,
+          "red",
+        );
+        addRoomLog(`Players lost! ${reasonText}`);
+        hangmanParts.face.style.display = "block";
         leaderboardSavedForRound = true;
       }
     }
@@ -571,19 +605,24 @@ document.addEventListener("DOMContentLoaded", () => {
       inRoom = false;
 
       // Reset game state
-      gameState.isChooser = false;
       gameState.selectedWord = "";
       gameState.correctLetters = [];
       gameState.wrongLetters = [];
       gameState.remainingGuesses = getDifficulty();
+      gameState.remainingTime = MULTIPLAYER_TIME_LIMIT;
       gameState.gameOver = false;
       gameState.category = "General";
+      gameState.currentScore = 0;
+      gameState.roundEndReason = null;
+      gameState.firstSolverName = "";
 
       // Reset UI
       DOM.wordDisplay.innerHTML = "";
       DOM.category.textContent = "Category: General";
       DOM.remainingGuesses.textContent = `Remaining guesses: ${gameState.remainingGuesses}`;
       DOM.gameMessage.textContent = "";
+      updateScoreDisplay();
+      updateTimerDisplay();
 
       Object.values(hangmanParts).forEach((p) => (p.style.display = "none"));
 
@@ -675,7 +714,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   DOM.difficulty.addEventListener("change", () => {
-    if (inRoom && !gameState.isChooser) {
+    if (inRoom) {
       gameState.remainingGuesses = getDifficulty();
       DOM.remainingGuesses.textContent = `Remaining guesses: ${gameState.remainingGuesses}`;
     }
@@ -686,7 +725,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.addEventListener("keydown", (e) => {
     if (!/^[a-z]$/i.test(e.key)) return;
     if (["INPUT", "TEXTAREA"].includes(document.activeElement.tagName)) return;
-    if (!wordSelectionState.selectedWord) return;
+    if (!gameState.selectedWord || gameState.gameOver) return;
     handleGuess(e.key.toUpperCase());
   });
 
@@ -697,6 +736,9 @@ document.addEventListener("DOMContentLoaded", () => {
   initializeTheme();
   updateDifficultyDisplay();
   DOM.remainingGuesses.textContent = `Remaining guesses: ${getDifficulty()}`;
+  gameState.remainingTime = MULTIPLAYER_TIME_LIMIT;
   syncHeaderStats();
+  updateScoreDisplay();
+  updateTimerDisplay();
   renderLeaderboard(getDifficultyLabel());
 });
