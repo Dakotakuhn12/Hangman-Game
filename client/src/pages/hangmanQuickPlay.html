@@ -12,6 +12,13 @@
   </head>
   <body>
     <div class="game-container">
+      <nav class="top-nav" aria-label="Game modes">
+        <a href="../index.html">Home</a>
+        <a href="./hangman.html">Single Player</a>
+        <a href="./hangmanQuickPlay.html" aria-current="page">Quick Play</a>
+        <a href="./hangmanMultiplayer.html">Multiplayer</a>
+      </nav>
+
       <div class="page-header">
         <h1>Hangman VS Bots</h1>
         <button
@@ -40,8 +47,8 @@
               <span class="score-value" id="botScore">0</span>
             </div>
             <div class="score-item timer">
-              <span class="score-label">Mistakes</span>
-              <span class="score-value" id="mistakes">0</span>
+              <span class="score-label">Time</span>
+              <span class="score-value" id="quickplay-timer">90s</span>
             </div>
           </div>
         </div>

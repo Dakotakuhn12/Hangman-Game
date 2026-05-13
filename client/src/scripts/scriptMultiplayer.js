@@ -71,6 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const socket = io();
   const keyboardButtons = new Map();
   const themeToggleIcon = DOM.themeToggle?.querySelector("i");
+  const timerPanel = DOM.multiplayerTimerDisplay?.closest(".score-item");
   let leaderboardSavedForRound = false;
   const MULTIPLAYER_TIME_LIMIT = 90;
 
@@ -211,7 +212,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const updateTimerDisplay = () => {
     if (DOM.multiplayerTimerDisplay) {
-      DOM.multiplayerTimerDisplay.textContent = `${Math.max(gameState.remainingTime || 0, 0)}s`;
+      const visibleTime = Math.max(gameState.remainingTime || 0, 0);
+      DOM.multiplayerTimerDisplay.textContent = `${visibleTime}s`;
+      DOM.multiplayerTimerDisplay.classList.toggle(
+        "timer-urgent",
+        visibleTime <= 20,
+      );
+      timerPanel?.classList.toggle("timer-warning", visibleTime <= 20);
     }
   };
 

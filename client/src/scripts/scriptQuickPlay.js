@@ -9,6 +9,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   const gameMessageEl = document.getElementById("game-message");
   const resetBtn = document.getElementById("reset-btn");
   const categoryContainer = document.getElementById("category");
+  const timerEl = document.getElementById("quickplay-timer");
+  const timerPanel = timerEl?.closest(".score-item");
   const themeToggle = document.getElementById("theme-toggle");
   const themeToggleText = document.getElementById("theme-toggle-text");
   const themeToggleIcon = themeToggle?.querySelector("i");
@@ -32,6 +34,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   let gameOver = false;
   let difficulty;
   let botInterval;
+  let timerInterval;
+  let timeRemaining = 90;
+
+  const GAME_TIME_LIMIT = 90;
 
   function applyTheme(theme) {
     const root = document.documentElement;
@@ -94,6 +100,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     gameOver = false;
     gameMessageEl.textContent = "";
     clearInterval(botInterval);
+    stopTimer();
 
     const d = getDifficulty(difficultyDropdown);
     remainingGuesses = d.remainingGuesses;
@@ -122,6 +129,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Start bot guesses automatically
     startBotGuesses(difficulty);
+    startTimer();
 
     difficultyDropdown.hidden = true;
   }
@@ -186,6 +194,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         gameMessageEl.style.color = "green";
         difficultyDropdown.hidden = false;
         clearInterval(botInterval);
+        stopTimer();
       }
     } else {
       wrongLetters.push(letter);
@@ -202,8 +211,43 @@ document.addEventListener("DOMContentLoaded", async () => {
         revealWord();
         difficultyDropdown.hidden = false;
         clearInterval(botInterval);
+        stopTimer();
       }
     }
+  }
+
+  function updateTimerDisplay() {
+    const visibleTime = Math.max(timeRemaining, 0);
+    if (!timerEl) return;
+
+    timerEl.textContent = `${visibleTime}s`;
+    timerEl.classList.toggle("timer-urgent", visibleTime <= 20);
+    timerPanel?.classList.toggle("timer-warning", visibleTime <= 20);
+  }
+
+  function startTimer() {
+    timeRemaining = GAME_TIME_LIMIT;
+    updateTimerDisplay();
+
+    timerInterval = setInterval(() => {
+      timeRemaining--;
+      updateTimerDisplay();
+
+      if (timeRemaining <= 0) {
+        gameOver = true;
+        gameMessageEl.textContent = `Game Over! Time ran out. The word was: ${selectedWord}`;
+        gameMessageEl.style.color = "red";
+        hangmanParts.face.style.display = "block";
+        revealWord();
+        difficultyDropdown.hidden = false;
+        clearInterval(botInterval);
+        stopTimer();
+      }
+    }, 1000);
+  }
+
+  function stopTimer() {
+    clearInterval(timerInterval);
   }
 
   // ===== Update word display =====
@@ -346,5 +390,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   // ===== Start game automatically =====
+  updateTimerDisplay();
   initGame();
 });

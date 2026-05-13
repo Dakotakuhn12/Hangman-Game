@@ -27,6 +27,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const currentScoreEl = document.getElementById("current-score");
   const highScoreEl = document.getElementById("high-score");
   const timerEl = document.getElementById("timer");
+  const timerPanel = timerEl?.closest(".score-item");
   const leaderboardSubtitle = document.getElementById("leaderboard-subtitle");
   const leaderboardList = document.getElementById("leaderboard-list");
 
@@ -70,6 +71,18 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   let timeRemaining = GAME_TIME_LIMIT;
   let timerInterval;
+
+  function resetEasyScoresOnce() {
+    const resetKey = "hangmanEasyScoresReset_v1";
+
+    if (localStorage.getItem(resetKey)) return;
+
+    localStorage.removeItem("hangmanHighScore_Easy");
+    localStorage.removeItem("hangmanLeaderboard_Easy");
+    localStorage.setItem(resetKey, "true");
+  }
+
+  resetEasyScoresOnce();
 
   highScoreEl.textContent = highScore;
   currentScoreEl.textContent = currentScore;
@@ -528,19 +541,26 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function startTimer() {
     timeRemaining = GAME_TIME_LIMIT;
-    timerEl.textContent = timeRemaining;
+    updateTimerDisplay();
 
     stopTimer();
 
     // Count down from 90 seconds for every difficulty level.
     timerInterval = setInterval(() => {
       timeRemaining--;
-      timerEl.textContent = Math.max(timeRemaining, 0);
+      updateTimerDisplay();
 
       if (timeRemaining <= 0) {
         endGame(`Game Over! Time ran out. The word was: ${selectedWord}`);
       }
     }, 1000);
+  }
+
+  function updateTimerDisplay() {
+    const visibleTime = Math.max(timeRemaining, 0);
+    timerEl.textContent = visibleTime;
+    timerEl.classList.toggle("timer-urgent", visibleTime <= 20);
+    timerPanel?.classList.toggle("timer-warning", visibleTime <= 20);
   }
 
   function stopTimer() {
