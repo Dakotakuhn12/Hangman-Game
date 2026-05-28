@@ -39,11 +39,11 @@
           </div>
           <div class="scoreboard">
             <div class="score-item">
-              <span class="score-label">Player</span>
+              <span class="score-label">Player Points</span>
               <span class="score-value" id="playerScore">0</span>
             </div>
             <div class="score-item high-score">
-              <span class="score-label">Bot</span>
+              <span class="score-label">Top Bot Points</span>
               <span class="score-value" id="botScore">0</span>
             </div>
             <div class="score-item timer">
@@ -77,8 +77,23 @@
             </div>
 
             <div class="info-card">
+              <span class="info-label">Match Round</span>
+              <p id="round-display">Round: 1 / 10</p>
+            </div>
+
+            <div class="info-card">
               <span class="info-label">Category</span>
               <p id="category">Category: General</p>
+            </div>
+
+            <div class="info-card">
+              <span class="info-label">Bot Status</span>
+              <p id="bot-status">Bots are joining...</p>
+            </div>
+
+            <div class="info-card bot-score-card">
+              <span class="info-label">Bot Points</span>
+              <div id="bot-score-list" class="bot-score-list"></div>
             </div>
           </div>
         </div>
@@ -232,6 +247,24 @@
               <i class="fas fa-redo"></i> New Game
             </button>
           </div>
+        </div>
+      </div>
+
+      <div
+        id="match-results"
+        class="modal match-results-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="results-title"
+        hidden
+      >
+        <div class="modal-content match-results-content">
+          <h2 id="results-title">Match Complete</h2>
+          <p id="results-summary"></p>
+          <ol id="results-list" class="leaderboard-list"></ol>
+          <button id="play-again-btn" class="reset-btn" type="button">
+            <i class="fas fa-redo"></i> Play Again
+          </button>
         </div>
       </div>
     </div>
