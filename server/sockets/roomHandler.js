@@ -7,6 +7,34 @@ export function setupRooms(io) {
   let lastFetchTime = 0;
   const CACHE_DURATION = 5 * 60 * 1000;
   const MULTIPLAYER_TIME_LIMIT = 90;
+  const WORD_MASTER_TOTAL_ROUNDS = 10;
+  const difficultyMap = {
+    easy: 6,
+    medium: 5,
+    hard: 4,
+    advanced: 3,
+  };
+
+  function getDifficultyGuesses(difficulty = "easy") {
+    return difficultyMap[difficulty] || 6;
+  }
+
+  function getDifficultyBonus(difficulty = "easy") {
+    return {
+      easy: 40,
+      medium: 70,
+      hard: 100,
+      advanced: 140,
+    }[difficulty] || 40;
+  }
+
+  function sanitizeChosenWord(word = "") {
+    return word
+      .trim()
+      .toUpperCase()
+      .replace(/[\u0000-\u001F\u007F]/g, "")
+      .replace(/\s+/g, " ");
+  }
 
   function clearRoomTimer(room) {
     if (room?.roundTimer) {
@@ -74,6 +102,144 @@ export function setupRooms(io) {
       });
     }
 
+    function ensureWordMasterScores(room) {
+      room.wordMasterPendingScores ||= {};
+      room.players.forEach((player) => {
+        room.wordMasterPendingScores[player.id] ??= 0;
+      });
+    }
+
+    function getPublicWordMasterScores(room, includeScores = false) {
+      ensureWordMasterScores(room);
+      const source = includeScores
+        ? room.wordMasterScores || room.wordMasterPendingScores
+        : {};
+
+      return room.players.map((player) => ({
+        id: player.id,
+        username: player.username,
+        score: source[player.id] || 0,
+      }));
+    }
+
+    function resetWordMasterMatch(room) {
+      room.wordMasterRound = 0;
+      room.wordMasterTotalRounds = WORD_MASTER_TOTAL_ROUNDS;
+      room.wordMasterMatchActive = true;
+      room.wordMasterMatchOver = false;
+      room.wordMasterScores = {};
+      room.wordMasterPendingScores = {};
+      room.chooserIndex = -1;
+      ensureWordMasterScores(room);
+    }
+
+    function broadcastWordMasterState(roomCode) {
+      const room = rooms[roomCode];
+      if (!room) return;
+
+      io.to(roomCode).emit("wordMasterState", {
+        players: room.players,
+        creatorId: room.creator,
+        chooserId: room.chooserId || "",
+        chooserName: room.chooserName || "",
+        scores: getPublicWordMasterScores(room, room.wordMasterMatchOver),
+        currentRound: room.wordMasterRound || 0,
+        totalRounds: room.wordMasterTotalRounds || WORD_MASTER_TOTAL_ROUNDS,
+        matchActive: Boolean(room.wordMasterMatchActive),
+        matchOver: Boolean(room.wordMasterMatchOver),
+        selectedWord: room.word || "",
+        category: room.category || "General",
+        correctLetters: room.correctLetters,
+        wrongLetters: room.wrongLetters,
+        remainingGuesses: room.remainingGuesses,
+        remainingTime: room.remainingTime,
+        gameOver: room.gameOver,
+        roundEndReason: room.roundEndReason,
+        firstSolverName: room.firstSolverName,
+        waitingForWord: Boolean(room.waitingForWord),
+      });
+    }
+
+    function clearWordMasterRound(room) {
+      clearRoomTimer(room);
+      room.word = null;
+      room.category = "General";
+      room.correctLetters = [];
+      room.wrongLetters = [];
+      room.remainingTime = MULTIPLAYER_TIME_LIMIT;
+      room.gameOver = false;
+      room.roundEndReason = null;
+      room.firstSolverName = "";
+      room.waitingForWord = false;
+    }
+
+    function endWordMasterRound(roomCode, reason, firstSolverName = "") {
+      const room = rooms[roomCode];
+      if (!room || room.gameOver) return;
+
+      room.gameOver = true;
+      room.roundEndReason = reason;
+      room.firstSolverName = firstSolverName;
+      room.waitingForWord = false;
+      clearRoomTimer(room);
+      ensureWordMasterScores(room);
+
+      const chooserScore = room.wordMasterPendingScores[room.chooserId] || 0;
+      if (room.chooserId) {
+        room.wordMasterPendingScores[room.chooserId] =
+          chooserScore + (reason === "solved" ? 100 : 50);
+      }
+
+      if ((room.wordMasterRound || 0) >= WORD_MASTER_TOTAL_ROUNDS) {
+        room.wordMasterScores = { ...room.wordMasterPendingScores };
+        room.wordMasterMatchActive = false;
+        room.wordMasterMatchOver = true;
+        io.to(roomCode).emit("logMessage", "Word Master match complete!");
+      }
+
+      if (reason === "solved") {
+        io.to(roomCode).emit(
+          "logMessage",
+          `${firstSolverName || "A player"} solved ${room.chooserName}'s word.`,
+        );
+      } else if (reason === "timer") {
+        io.to(roomCode).emit(
+          "logMessage",
+          `Time ran out. ${room.chooserName} stumped the room.`,
+        );
+      } else if (reason === "guesses") {
+        io.to(roomCode).emit(
+          "logMessage",
+          `No guesses left. ${room.chooserName} stumped the room.`,
+        );
+      }
+
+      broadcastWordMasterState(roomCode);
+    }
+
+    function startWordMasterTimer(roomCode) {
+      const room = rooms[roomCode];
+      if (!room) return;
+
+      clearRoomTimer(room);
+      room.roundTimer = setInterval(() => {
+        if (!rooms[roomCode] || room.gameOver || room.waitingForWord) {
+          clearRoomTimer(room);
+          return;
+        }
+
+        room.remainingTime--;
+
+        if (room.remainingTime <= 0) {
+          room.remainingTime = 0;
+          endWordMasterRound(roomCode, "timer", room.firstSolverName);
+          return;
+        }
+
+        broadcastWordMasterState(roomCode);
+      }, 1000);
+    }
+
     function endRound(roomCode, reason, firstSolverName = "") {
       const room = rooms[roomCode];
       if (!room || room.gameOver) return;
@@ -116,6 +282,17 @@ export function setupRooms(io) {
         roundEndReason: null,
         firstSolverName: "",
         roundTimer: null,
+        mode: "multiplayer",
+        chooserIndex: -1,
+        chooserId: "",
+        chooserName: "",
+        waitingForWord: false,
+        wordMasterScores: {},
+        wordMasterPendingScores: {},
+        wordMasterRound: 0,
+        wordMasterTotalRounds: WORD_MASTER_TOTAL_ROUNDS,
+        wordMasterMatchActive: false,
+        wordMasterMatchOver: false,
       };
       socket.join(roomCode);
 
@@ -145,6 +322,30 @@ export function setupRooms(io) {
         callback({ success: true });
         updateRoomPlayers(roomCode);
 
+        if (room.mode === "wordMaster") {
+          socket.emit("wordMasterState", {
+            players: room.players,
+            creatorId: room.creator,
+            chooserId: room.chooserId || "",
+            chooserName: room.chooserName || "",
+            scores: getPublicWordMasterScores(room, room.wordMasterMatchOver),
+            currentRound: room.wordMasterRound || 0,
+            totalRounds: room.wordMasterTotalRounds || WORD_MASTER_TOTAL_ROUNDS,
+            matchActive: Boolean(room.wordMasterMatchActive),
+            matchOver: Boolean(room.wordMasterMatchOver),
+            selectedWord: room.word || "",
+            category: room.category || "General",
+            correctLetters: room.correctLetters,
+            wrongLetters: room.wrongLetters,
+            remainingGuesses: room.remainingGuesses,
+            remainingTime: room.remainingTime,
+            gameOver: room.gameOver,
+            roundEndReason: room.roundEndReason,
+            firstSolverName: room.firstSolverName,
+            waitingForWord: Boolean(room.waitingForWord),
+          });
+        }
+
         if (room.word) {
           socket.emit("gameStarted", {
             word: room.word,
@@ -169,13 +370,7 @@ export function setupRooms(io) {
         return;
       }
 
-      const difficultyMap = {
-        easy: 6,
-        medium: 5,
-        hard: 4,
-        advanced: 3,
-      };
-      room.remainingGuesses = difficultyMap[difficulty] || 6;
+      room.remainingGuesses = getDifficultyGuesses(difficulty);
       room.remainingTime = MULTIPLAYER_TIME_LIMIT;
 
       clearRoomTimer(room);
@@ -225,6 +420,154 @@ export function setupRooms(io) {
           "Unable to start multiplayer game because no words were available.",
         );
       }
+    });
+
+    socket.on("startWordMasterRound", (roomCode, difficulty = "easy") => {
+      const room = rooms[roomCode];
+      if (!room) return;
+
+      if (socket.id !== room.creator) {
+        socket.emit("logMessage", "Only the room creator can start the round!");
+        return;
+      }
+
+      if (room.players.length < 2) {
+        socket.emit(
+          "logMessage",
+          "Word Master needs at least two players: one chooser and one guesser.",
+        );
+        return;
+      }
+
+      room.mode = "wordMaster";
+      if (!room.wordMasterMatchActive || room.wordMasterMatchOver) {
+        resetWordMasterMatch(room);
+      }
+
+      if (room.waitingForWord || (room.word && !room.gameOver)) {
+        socket.emit("logMessage", "Finish the current round before starting another.");
+        return;
+      }
+
+      if ((room.wordMasterRound || 0) >= WORD_MASTER_TOTAL_ROUNDS) {
+        room.wordMasterMatchActive = false;
+        room.wordMasterMatchOver = true;
+        broadcastWordMasterState(roomCode);
+        return;
+      }
+
+      clearWordMasterRound(room);
+      ensureWordMasterScores(room);
+      room.remainingGuesses = getDifficultyGuesses(difficulty);
+      room.difficulty = difficulty;
+      room.wordMasterRound = (room.wordMasterRound || 0) + 1;
+      room.wordMasterTotalRounds = WORD_MASTER_TOTAL_ROUNDS;
+      room.chooserIndex = (room.chooserIndex + 1) % room.players.length;
+
+      const chooser = room.players[room.chooserIndex];
+      room.chooserId = chooser.id;
+      room.chooserName = chooser.username;
+      room.waitingForWord = true;
+
+      io.to(roomCode).emit(
+        "logMessage",
+        `Round ${room.wordMasterRound}/${WORD_MASTER_TOTAL_ROUNDS}: ${chooser.username} is choosing the word.`,
+      );
+      io.to(chooser.id).emit("wordMasterChooseWord", {
+        roomCode,
+        difficulty,
+      });
+      broadcastWordMasterState(roomCode);
+    });
+
+    socket.on("submitWordMasterWord", (roomCode, word, category = "Custom") => {
+      const room = rooms[roomCode];
+      if (!room || room.chooserId !== socket.id || !room.waitingForWord) return;
+
+      const cleanWord = sanitizeChosenWord(word);
+      if (cleanWord.replace(/\s/g, "").length < 2) {
+        socket.emit("logMessage", "Choose a word with at least two characters.");
+        return;
+      }
+
+      room.word = cleanWord;
+      room.category = (category || "Custom").trim().slice(0, 32) || "Custom";
+      room.correctLetters = [];
+      room.wrongLetters = [];
+      room.remainingTime = MULTIPLAYER_TIME_LIMIT;
+      room.gameOver = false;
+      room.roundEndReason = null;
+      room.firstSolverName = "";
+      room.waitingForWord = false;
+
+      io.to(roomCode).emit(
+        "logMessage",
+        `${room.chooserName} submitted a word. Guessers, you're up!`,
+      );
+      broadcastWordMasterState(roomCode);
+      startWordMasterTimer(roomCode);
+    });
+
+    socket.on("wordMasterGuess", (roomCode, letter) => {
+      const room = rooms[roomCode];
+      if (!room || room.gameOver || room.waitingForWord || !room.word) return;
+
+      if (socket.id === room.chooserId) {
+        socket.emit("logMessage", "The word chooser cannot guess this round.");
+        return;
+      }
+
+      const player = room.players.find((p) => p.id === socket.id);
+      if (!player) return;
+
+      letter = String(letter || "").toUpperCase();
+      if (!/^[A-Z]$/.test(letter)) return;
+
+      if (
+        room.correctLetters.includes(letter) ||
+        room.wrongLetters.includes(letter)
+      ) {
+        return;
+      }
+
+      ensureWordMasterScores(room);
+      io.to(roomCode).emit("logMessage", `${player.username} guessed: ${letter}`);
+
+      if (room.word.includes(letter)) {
+        room.correctLetters.push(letter);
+        room.wordMasterPendingScores[player.id] += 10;
+        if (room.chooserId) room.wordMasterPendingScores[room.chooserId] += 5;
+      } else {
+        room.wrongLetters.push(letter);
+        room.remainingGuesses--;
+        room.wordMasterPendingScores[player.id] = Math.max(
+          0,
+          room.wordMasterPendingScores[player.id] - 3,
+        );
+        if (room.chooserId) room.wordMasterPendingScores[room.chooserId] += 10;
+      }
+
+      const allLettersGuessed = room.word
+        .split("")
+        .every((char) => /[^A-Z]/i.test(char) || room.correctLetters.includes(char));
+
+      if (allLettersGuessed) {
+        room.wordMasterPendingScores[player.id] +=
+          getDifficultyBonus(room.difficulty) +
+          Math.max(0, room.remainingTime) * 3 +
+          Math.max(0, room.remainingGuesses) * 20 +
+          room.word.replace(/[^A-Z]/g, "").length * 8;
+        endWordMasterRound(roomCode, "solved", player.username);
+        return;
+      }
+
+      if (room.remainingGuesses <= 0) {
+        room.remainingGuesses = 0;
+        endWordMasterRound(roomCode, "guesses", room.firstSolverName);
+        return;
+      }
+
+      broadcastWordMasterState(roomCode);
     });
 
     socket.on("playerGuess", (roomCode, letter) => {
@@ -298,6 +641,21 @@ export function setupRooms(io) {
         );
       }
 
+      if (room.mode === "wordMaster") {
+        delete room.wordMasterScores?.[socket.id];
+        delete room.wordMasterPendingScores?.[socket.id];
+        if (socket.id === room.chooserId) {
+          clearWordMasterRound(room);
+          room.chooserId = "";
+          room.chooserName = "";
+          io.to(roomCode).emit(
+            "logMessage",
+            "The word chooser left, so the Word Master round was cancelled.",
+          );
+        }
+        broadcastWordMasterState(roomCode);
+      }
+
       updateRoomPlayers(roomCode);
       callback();
     });
@@ -344,6 +702,21 @@ export function setupRooms(io) {
             `${player.username} has disconnected.`,
           );
           updateRoomPlayers(roomCode);
+        }
+
+        if (room.mode === "wordMaster") {
+          delete room.wordMasterScores?.[socket.id];
+          delete room.wordMasterPendingScores?.[socket.id];
+          if (socket.id === room.chooserId) {
+            clearWordMasterRound(room);
+            room.chooserId = "";
+            room.chooserName = "";
+            io.to(roomCode).emit(
+              "logMessage",
+              "The word chooser disconnected, so the Word Master round was cancelled.",
+            );
+          }
+          broadcastWordMasterState(roomCode);
         }
       }
     });
