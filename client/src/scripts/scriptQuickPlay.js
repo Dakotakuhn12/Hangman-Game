@@ -122,6 +122,46 @@ document.addEventListener("DOMContentLoaded", async () => {
     initRound();
   }
 
+  function showStartScreen() {
+    currentRound = 1;
+    scores = {
+      Player: 0,
+      ...Object.fromEntries(BOT_NAMES.map((name) => [name, 0])),
+    };
+    bots = [];
+    selectedWord = "";
+    correctLetters = [];
+    wrongLetters = [];
+    roundOver = true;
+    playerDone = false;
+    timeRemaining = GAME_TIME_LIMIT;
+
+    clearInterval(botInterval);
+    clearInterval(timerInterval);
+    clearTimeout(nextRoundTimeout);
+
+    wordDisplay.innerHTML = "";
+    keyboard.innerHTML = "";
+    Object.values(hangmanParts).forEach((part) => {
+      if (part) part.style.display = "none";
+    });
+
+    const d = getDifficulty(difficultyDropdown);
+    remainingGuesses = d.remainingGuesses;
+    difficulty = d.difficulty;
+    remainingGuessesEl.textContent = `Remaining guesses: ${remainingGuesses}`;
+    categoryContainer.textContent = "Category: Ready when you are";
+    gameMessageEl.textContent = "Choose a difficulty, then start when you're ready.";
+    gameMessageEl.style.color = "var(--primary)";
+    resetBtn.innerHTML = '<i class="fas fa-play"></i> Start Quick Play';
+
+    updateScores();
+    updateRoundDisplay();
+    updateDifficultyDisplay();
+    updateTimerDisplay();
+    updateBotStatus("Waiting for the match to start...");
+  }
+
   async function initRound() {
     correctLetters = [];
     wrongLetters = [];
@@ -242,7 +282,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       playerDone = true;
       gameMessageEl.textContent = `You are out this round. The word was: ${selectedWord}`;
       gameMessageEl.style.color = "red";
-      hangmanParts.face.style.display = "block";
+      showCompletedHangman();
       revealWord();
       disableKeyboard();
       checkRoundComplete();
@@ -258,6 +298,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       updateTimerDisplay();
 
       if (timeRemaining <= 0) {
+        showCompletedHangman();
         endRound(`Time ran out. The word was: ${selectedWord}`);
       }
     }, 1000);
@@ -559,6 +600,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
+  function showCompletedHangman() {
+    Object.values(hangmanParts).forEach((part) => {
+      if (part) part.style.display = "block";
+    });
+  }
+
   function isWordSolved(letters) {
     return selectedWord
       .toUpperCase()
@@ -653,5 +700,5 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   updateTimerDisplay();
-  startMatch();
+  showStartScreen();
 });

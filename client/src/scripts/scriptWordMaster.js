@@ -150,6 +150,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   };
 
+  const showCompletedHangman = () => {
+    Object.values(hangmanParts).forEach((part) => {
+      if (part) part.style.display = "block";
+    });
+  };
+
   const updateWordDisplay = () => {
     DOM.wordDisplay.innerHTML = "";
     DOM.wordDisplay.classList.toggle(
@@ -169,7 +175,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     gameState.selectedWord.split(" ").forEach((word, wordIndex, words) => {
       const wordEl = document.createElement("div");
-      wordEl.className = "word-display";
+      wordEl.className = "word-group";
 
       word.split("").forEach((char) => {
         const letterEl = document.createElement("div");
@@ -460,7 +466,7 @@ document.addEventListener("DOMContentLoaded", () => {
           `${state.chooserName} stumped the room. The word was ${state.selectedWord}. Start the next round when ready.`,
           "red",
         );
-        hangmanParts.face.style.display = "block";
+        showCompletedHangman();
       }
       return;
     }

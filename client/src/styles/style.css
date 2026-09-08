@@ -752,13 +752,14 @@ label[for="difficulty"] {
 
 .play-area-card {
   padding: 28px;
+  gap: clamp(16px, 1.8vw, 26px);
   height: 100%;
   min-height: 0;
   overflow: hidden;
 }
 
 .word-master-play-area {
-  gap: 22px;
+  gap: clamp(18px, 2vw, 28px);
 }
 
 .word-master-play-area .hangman-container {
@@ -778,8 +779,9 @@ label[for="difficulty"] {
   flex: 1 1 0;
   align-items: center;
   justify-content: center;
-  min-height: 220px;
+  min-height: clamp(250px, 30vh, 340px);
   margin: 0;
+  padding: 8px 0 18px;
 }
 
 #hangman-svg {
@@ -794,10 +796,10 @@ label[for="difficulty"] {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 12px;
   width: 100%;
-  min-height: 56px;
-  padding: 16px 12px 8px;
+  min-height: 70px;
+  padding: 8px 12px 16px;
   color: var(--ink);
 }
 
@@ -815,7 +817,7 @@ label[for="difficulty"] {
 
 .word-group {
   display: flex;
-  gap: 10px;
+  gap: 12px;
 }
 
 .word-letter {
@@ -829,7 +831,7 @@ label[for="difficulty"] {
 }
 
 .word-space {
-  width: clamp(10px, 1.2vw, 18px);
+  width: clamp(20px, 2vw, 32px);
   border-bottom: none;
 }
 
@@ -1057,7 +1059,8 @@ label[for="difficulty"] {
   }
 
   .hangman-container {
-    min-height: 240px;
+    min-height: 260px;
+    padding-bottom: 14px;
   }
 
   .word-master-play-area {

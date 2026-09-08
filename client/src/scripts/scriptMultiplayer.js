@@ -301,6 +301,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   };
 
+  const showCompletedHangman = () => {
+    Object.values(hangmanParts).forEach((part) => {
+      if (part) part.style.display = "block";
+    });
+  };
+
   const updateWordDisplay = () => {
     DOM.wordDisplay.innerHTML = "";
 
@@ -309,7 +315,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     words.forEach((word, wordIndex) => {
       const wordEl = document.createElement("div");
-      wordEl.className = "word-display";
+      wordEl.className = "word-group";
 
       word.split("").forEach((char) => {
         const letterEl = document.createElement("div");
@@ -560,7 +566,7 @@ document.addEventListener("DOMContentLoaded", () => {
           "red",
         );
         addRoomLog(`Players lost! ${reasonText}`);
-        hangmanParts.face.style.display = "block";
+        showCompletedHangman();
         leaderboardSavedForRound = true;
       }
     }

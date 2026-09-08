@@ -580,7 +580,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     gameMessageEl.textContent = message;
     gameMessageEl.style.color = "red";
 
-    hangmanParts.face.style.display = "block";
+    showCompletedHangman();
 
     revealWord();
     saveLeaderboardEntry(difficulty, finalScore, selectedWord, getPlayerName());
@@ -633,6 +633,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (wrongLetters.length <= steps.length) {
       steps[wrongLetters.length - 1].style.display = "block";
     }
+  }
+
+  function showCompletedHangman() {
+    Object.values(hangmanParts).forEach((part) => {
+      if (part) part.style.display = "block";
+    });
   }
 
   // ============================================================
