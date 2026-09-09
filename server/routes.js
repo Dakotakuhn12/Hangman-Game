@@ -19,16 +19,16 @@ router.get("/words", async (req, res) => {
 
     await connectDB();
     const db = getDb("words");
-    
+
     const collectionsInfo = await db.listCollections().toArray();
-    const collectionNames = collectionsInfo.map(c => c.name);
+    const collectionNames = collectionsInfo.map((c) => c.name);
 
     let allWords = [];
     for (const name of collectionNames) {
       const collection = db.collection(name);
       const docs = await collection.find({}).toArray();
-      
-      const wordsWithCategory = docs.map(doc => ({
+
+      const wordsWithCategory = docs.map((doc) => ({
         ...doc,
         category: name,
       }));
@@ -48,3 +48,5 @@ router.get("/words", async (req, res) => {
 });
 
 export default router;
+
+/* yes */
